@@ -4,10 +4,7 @@ exports.handler = async function(event) {
   const appId = params.appId || '';
 
   if (!query || !appId) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ error: 'Missing query or appId' })
-    };
+    return { statusCode: 400, body: JSON.stringify({ error: 'Missing query or appId' }) };
   }
 
   const noiseWords = ['proxy', 'playmat', 'sleeve', 'lot ', 'custom', 'alter', 'reprint', 'fake', 'token', 'bundle'];
@@ -24,25 +21,19 @@ exports.handler = async function(event) {
     `&paginationInput.entriesPerPage=8`;
 
   try {
-    const fetch = require('node-fetch');
     const res = await fetch(url);
     const data = await res.json();
-
     const items = data?.findCompletedItemsResponse?.[0]?.searchResult?.[0]?.item || [];
     const filtered = items.filter(item => {
       const title = (item.title?.[0] || '').toLowerCase();
       return !noiseWords.some(w => title.includes(w));
     });
-
     return {
       statusCode: 200,
       headers: { 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify({ items: filtered.slice(0, 5) })
     };
   } catch(e) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: e.message })
-    };
+    return { statusCode: 500, body: JSON.stringify({ error: e.message }) };
   }
 };
