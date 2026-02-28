@@ -1371,42 +1371,21 @@ async function fetchEbaySold(cardName, setName) {
   document.getElementById('ebay-comps-list').textContent = 'Loading...';
 
   // Build search query — card name + MTG to reduce noise
-  const query = encodeURIComponent(`"${cardName}" MTG magic gathering`);
-  const url = `https://svcs.ebay.com/services/search/FindingService/v1` +
-    `?OPERATION-NAME=findCompletedItems` +
-    `&SERVICE-VERSION=1.0.0` +
-    `&SECURITY-APPNAME=${appId}` +
-    `&RESPONSE-DATA-FORMAT=JSON` +
-    `&keywords=${query}` +
-    `&categoryId=2536` +  // Trading Cards category
-    `&itemFilter(0).name=SoldItemsOnly&itemFilter(0).value=true` +
-    `&itemFilter(1).name=ListingType&itemFilter(1).value=AuctionWithBIN` +
-    `&itemFilter(2).name=ListingType&itemFilter(2).value=FixedPrice` +
-    `&sortOrder=EndTimeSoonest` +
-    `&paginationInput.entriesPerPage=5` +
-    `&outputSelector=SellerInfo`;
+  const query = `"${cardName}" MTG magic gathering`;
+  const url = `/.netlify/functions/ebay-search?query=${encodeURIComponent(query)}&appId=${encodeURIComponent(appId)}`;
 
   try {
     const res = await fetch(url);
-    if (!res.ok) throw new Error('eBay API error');
+    if (!res.ok) throw new Error('eBay function error');
     const data = await res.json();
+    const items = data.items || [];
     
-    const searchResult = data?.findCompletedItemsResponse?.[0];
-    const items = searchResult?.searchResult?.[0]?.item || [];
-    
-    // Filter noise — exclude proxies, playmats, lots, etc.
-    const noiseWords = ['proxy', 'playmat', 'sleeve', 'lot ', 'lots ', 'custom', 'alter', 'reprint', 'fake', 'token', 'art card', 'bundle'];
-    const filtered = items.filter(item => {
-      const title = (item.title?.[0] || '').toLowerCase();
-      return !noiseWords.some(w => title.includes(w));
-    });
-
-    if (filtered.length === 0) {
+    if (items.length === 0) {
       document.getElementById('ebay-comps-list').innerHTML = '<span style="color:var(--text-dim)">No recent sold listings found</span>';
       return;
     }
 
-    const html = filtered.slice(0, 5).map(item => {
+    const html = items.slice(0, 5).map(item => {
       const title = item.title?.[0] || '';
       const price = parseFloat(item.sellingStatus?.[0]?.convertedCurrentPrice?.[0]?.__value__ || 0);
       const endTime = item.listingInfo?.[0]?.endTime?.[0] || '';
@@ -1422,8 +1401,8 @@ async function fetchEbaySold(cardName, setName) {
       </div>`;
     }).join('');
 
-    // Calculate average of filtered results
-    const prices = filtered.slice(0, 5).map(i => parseFloat(i.sellingStatus?.[0]?.convertedCurrentPrice?.[0]?.__value__ || 0)).filter(p => p > 0);
+    // Calculate average
+    const prices = items.slice(0, 5).map(i => parseFloat(i.sellingStatus?.[0]?.convertedCurrentPrice?.[0]?.__value__ || 0)).filter(p => p > 0);
     const avg = prices.length ? (prices.reduce((a,b) => a+b, 0) / prices.length) : 0;
     const avgHtml = avg > 0 ? `<div style="text-align:right; font-size:12px; color:#3b82f6; margin-top:6px; font-weight:700;">Avg sold: $${avg.toFixed(2)}</div>` : '';
 
