@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CardTriage">
+<title>CardTriage — MTG Inventory Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111520;
+    --surface2: #181d2e;
+    --border: #252d45;
+    --accent: #c9a84c;
+    --accent2: #e8c97a;
+    --grade: #a855f7;
+    --ebay: #3b82f6;
+    --tcg: #22c55e;
+    --bulk: #f97316;
+    --damaged: #6b7280;
+    --text: #e8eaf0;
+    --text-muted: #6b7a99;
+    --text-dim: #3d4a6b;
+    --card-w: min(420px, 100vw - 24px);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(201,168,76,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(59,130,246,0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,12,16,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-family: 'Cinzel', serif;
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .logo span {
+    font-weight: 700;
+    opacity: 0.6;
+    font-size: 13px;
+    letter-spacing: 3px;
+    display: block;
+    margin-top: -4px;
+  }
+
+  .session-stats {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+  }
+
+  .session-stats b { color: var(--accent); }
+
+  /* ===== MAIN LAYOUT ===== */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+
+  /* ===== TABS ===== */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 20px;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 8px 4px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 7px;
+    transition: all 0.2s;
+  }
+
+  .tab.active {
+    background: var(--surface2);
+    color: var(--accent);
+    border: 1px solid var(--border);
+  }
+
+  /* ===== PANELS ===== */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ===== IMPORT PANEL ===== */
+  .import-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: var(--surface);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .import-zone::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(201,168,76,0.03) 0%, transparent 70%);
+  }
+
+  .import-zone:hover, .import-zone.drag-over {
+    border-color: var(--accent);
+    background: rgba(201,168,76,0.04);
+  }
+
+  .import-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .import-zone h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .import-zone p {
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .import-zone input[type=file] {
+    display: none;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface2);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0a0c10;
+  }
+
+  .btn-primary:hover { background: var(--accent2); border-color: var(--accent2); color: #0a0c10; }
+
+  .btn-sm { padding: 6px 14px; font-size: 12px; }
+
+  /* Settings section */
+  .settings-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+  }
+
+  .settings-card h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+
+  .threshold-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .threshold-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .threshold-item label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .threshold-item input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+
+  .threshold-item input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  /* ===== TRIAGE PANEL ===== */
+  .triage-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 0 16px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  .progress-text {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    white-space: nowrap;
+    letter-spacing: 1px;
+  }
+
+  /* Card display */
+  .card-display {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .card-display::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+
+  .card-main {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .card-name {
+    font-family: 'Cinzel', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+
+  .card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .meta-tag {
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  .meta-tag.rarity-m { border-color: var(--accent); color: var(--accent); }
+  .meta-tag.rarity-r { border-color: #c0c0c0; color: #c0c0c0; }
+  .meta-tag.rarity-u { border-color: #7da8d4; color: #7da8d4; }
+  .meta-tag.rarity-c { color: var(--text-dim); }
+
+  /* Format legality */
+  .format-legality {
+    padding: 0 20px 16px;
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+  }
+
+  .format-legality-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    margin-top: 12px;
+  }
+
+  .format-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .format-tag {
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+  }
+
+  .format-tag.legal { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.3); color: #22c55e; }
+  .format-tag.not_legal { background: rgba(107,114,128,0.06); border-color: rgba(107,114,128,0.15); color: var(--text-dim); }
+  .format-tag.banned { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: #ef4444; }
+  .format-tag.restricted { background: rgba(249,115,22,0.1); border-color: rgba(249,115,22,0.3); color: var(--bulk); }
+
+  .card-image {
+    width: 80px;
+    height: 112px;
+    border-radius: 6px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .card-image-placeholder {
+    width: 80px;
+    height: 112px;
+    border-radius: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+  }
+
+  /* Price section */
+  .price-section {
+    padding: 0 20px 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .price-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .price-box .label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .price-box .value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .price-box .value.high { color: var(--accent); }
+  .price-box .value.na { color: var(--text-dim); font-size: 14px; }
+
+  .ebay-notice {
+    grid-column: 1 / -1;
+    background: rgba(59,130,246,0.05);
+    border: 1px solid rgba(59,130,246,0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: rgba(59,130,246,0.7);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.5px;
+  }
+
+  /* Suggestion banner */
+  .suggestion {
+    margin: 0 20px 20px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .suggestion.grade { background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.3); color: var(--grade); }
+  .suggestion.ebay { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); color: var(--ebay); }
+  .suggestion.tcg { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: var(--tcg); }
+  .suggestion.bulk { background: rgba(249,115,22,0.1); border: 1px solid rgba(249,115,22,0.3); color: var(--bulk); }
+  .suggestion.damaged { background: rgba(107,114,128,0.1); border: 1px solid rgba(107,114,128,0.3); color: var(--damaged); }
+
+  /* Decision buttons */
+  .decision-buttons {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  @media (max-width: 500px) {
+    .decision-buttons { grid-template-columns: repeat(3, 1fr); }
+    .decision-buttons .btn-decision:last-child { grid-column: 1 / -1; }
+  }
+
+  .btn-decision {
+    padding: 14px 8px;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.15s;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .btn-decision .icon { font-size: 20px; }
+
+  .btn-grade { background: rgba(168,85,247,0.1); border-color: rgba(168,85,247,0.3); color: var(--grade); }
+  .btn-grade:hover, .btn-grade.selected { background: rgba(168,85,247,0.25); border-color: var(--grade); }
+
+  .btn-ebay { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); color: var(--ebay); }
+  .btn-ebay:hover, .btn-ebay.selected { background: rgba(59,130,246,0.25); border-color: var(--ebay); }
+
+  .btn-tcg { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.3); color: var(--tcg); }
+  .btn-tcg:hover, .btn-tcg.selected { background: rgba(34,197,94,0.25); border-color: var(--tcg); }
+
+  .btn-bulk { background: rgba(249,115,22,0.1); border-color: rgba(249,115,22,0.3); color: var(--bulk); }
+  .btn-bulk:hover, .btn-bulk.selected { background: rgba(249,115,22,0.25); border-color: var(--bulk); }
+
+  .btn-damaged { background: rgba(107,114,128,0.1); border-color: rgba(107,114,128,0.3); color: var(--damaged); }
+  .btn-damaged:hover, .btn-damaged.selected { background: rgba(107,114,128,0.25); border-color: var(--damaged); }
+
+  .nav-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+  }
+
+  /* ===== RESULTS PANEL ===== */
+  .results-summary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  @media (min-width: 600px) {
+    .results-summary { grid-template-columns: repeat(5, 1fr); }
+  }
+
+  .result-bucket {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+    transition: border-color 0.2s;
+    cursor: pointer;
+  }
+
+  .result-bucket:hover { border-color: var(--accent); }
+  .result-bucket .bucket-icon { font-size: 24px; margin-bottom: 8px; }
+  .result-bucket .bucket-name { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  .result-bucket .bucket-count { font-size: 28px; font-weight: 700; }
+  .result-bucket .bucket-value { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  .result-bucket.grade .bucket-count { color: var(--grade); }
+  .result-bucket.ebay .bucket-count { color: var(--ebay); }
+  .result-bucket.tcg .bucket-count { color: var(--tcg); }
+  .result-bucket.bulk .bucket-count { color: var(--bulk); }
+  .result-bucket.damaged .bucket-count { color: var(--damaged); }
+
+  .result-list {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .result-list-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .result-list-header h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .filter-tabs {
+    display: flex;
+    gap: 4px;
+  }
+
+  .filter-tab {
+    padding: 4px 10px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .filter-tab.active, .filter-tab:hover { background: var(--surface2); color: var(--text); }
+  .filter-tab.grade.active { color: var(--grade); border-color: var(--grade); }
+  .filter-tab.ebay.active { color: var(--ebay); border-color: var(--ebay); }
+  .filter-tab.tcg.active { color: var(--tcg); border-color: var(--tcg); }
+  .filter-tab.bulk.active { color: var(--bulk); border-color: var(--bulk); }
+  .filter-tab.damaged.active { color: var(--damaged); border-color: var(--damaged); }
+
+  .result-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: background 0.15s;
+  }
+
+  .result-item:last-child { border-bottom: none; }
+  .result-item:hover { background: var(--surface2); }
+
+  .result-item-info { flex: 1; min-width: 0; }
+  .result-item-name { font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .result-item-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .result-item-price { font-size: 16px; font-weight: 700; text-align: right; }
+  
+  .bucket-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .bucket-dot.grade { background: var(--grade); }
+  .bucket-dot.ebay { background: var(--ebay); }
+  .bucket-dot.tcg { background: var(--tcg); }
+  .bucket-dot.bulk { background: var(--bulk); }
+  .bucket-dot.damaged { background: var(--damaged); }
+
+  .export-bar {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  /* ===== EMPTY STATE ===== */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+
+  .empty-state .icon { font-size: 48px; margin-bottom: 16px; display: block; }
+  .empty-state h3 { font-family: 'Cinzel', serif; color: var(--text-dim); font-size: 16px; margin-bottom: 8px; }
+  .empty-state p { font-size: 14px; line-height: 1.6; }
+
+  /* ===== LOADING ===== */
+  .loading-bar {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    margin-bottom: 16px;
+    border-radius: 1px;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .loading-text {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    padding: 20px;
+  }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: var(--tcg); color: var(--tcg); }
+  .toast.error { border-color: #ef4444; color: #ef4444; }
+
+  /* Scrollable list */
+  .result-list-scroll {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .result-list-scroll::-webkit-scrollbar { width: 4px; }
+  .result-list-scroll::-webkit-scrollbar-track { background: transparent; }
+  .result-list-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* Condition selector in triage */
+  .condition-select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .condition-select:focus { outline: none; border-color: var(--accent); }
+
+  .card-controls {
+    padding: 0 20px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card-controls label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    CardTriage
+    <span>MTG Inventory Tool</span>
+  </div>
+  <div class="session-stats">
+    <span>Processed: <b id="stat-processed">0</b></span>
+    <span>Remaining: <b id="stat-remaining">—</b></span>
+  </div>
+</header>
+
+<main>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('import')">① Import</button>
+    <button class="tab" onclick="switchTab('triage')" id="tab-triage">② Triage</button>
+    <button class="tab" onclick="switchTab('results')" id="tab-results">③ Results</button>
+  </div>
+
+  <!-- IMPORT PANEL -->
+  <div class="panel active" id="panel-import">
+    <div class="import-zone" id="drop-zone" onclick="document.getElementById('csv-input').click()">
+      <span class="import-icon">📦</span>
+      <h3>Import Manabox Export</h3>
+      <p>Drop your Manabox CSV here, or tap to browse.<br>
+      Export from Manabox: Collection tab → ⋯ menu → Export CSV</p>
+      <br>
+      <button class="btn btn-primary" onclick="event.stopPropagation(); document.getElementById('csv-input').click()">
+        Choose CSV File
+      </button>
+      <input type="file" id="csv-input" accept=".csv" onchange="handleFileSelect(event)">
+    </div>
+
+    <div class="settings-card">
+      <h3>Triage Thresholds</h3>
+      <div class="threshold-grid">
+        <div class="threshold-item">
+          <label style="color: var(--grade)">Grade if above $</label>
+          <input type="number" id="thresh-grade" value="50" min="0">
+        </div>
+        <div class="threshold-item">
+          <label style="color: var(--ebay)">eBay if above $</label>
+          <input type="number" id="thresh-ebay" value="15" min="0">
+        </div>
+        <div class="threshold-item">
+          <label style="color: var(--tcg)">TCGplayer if above $</label>
+          <input type="number" id="thresh-tcg" value="1" min="0">
+        </div>
+        <div class="threshold-item">
+          <label style="color: var(--bulk)">Bulk if below $</label>
+          <input type="number" id="thresh-bulk" value="1" min="0">
+        </div>
+      </div>
+      <br>
+      <p style="font-size: 12px; color: var(--text-muted); line-height: 1.6;">
+        Logic: <span style="color: var(--grade)">Grade</span> ≥ Grade threshold &nbsp;|&nbsp; 
+        <span style="color: var(--ebay)">eBay</span> ≥ eBay threshold &nbsp;|&nbsp; 
+        <span style="color: var(--tcg)">TCGplayer</span> ≥ TCG threshold &nbsp;|&nbsp; 
+        <span style="color: var(--bulk)">Bulk</span> below TCG threshold
+      </p>
+    </div>
+
+    <div class="settings-card" style="margin-top: 12px; background: rgba(59,130,246,0.04); border-color: rgba(59,130,246,0.2);">
+      <h3 style="color: rgba(59,130,246,0.9)">⚡ eBay Sold Comps</h3>
+      <p style="font-size: 13px; color: rgba(59,130,246,0.6); line-height: 1.6;">
+        Paste your eBay App ID (Client ID) from developer.ebay.com to enable real sold listing data.
+      </p>
+      <br>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <input type="text" placeholder="eBay App ID / Client ID" 
+          style="flex:1; background: var(--surface2); border: 1px solid rgba(59,130,246,0.3); border-radius: 6px; padding: 8px 12px; color: var(--text); font-family: Rajdhani, sans-serif; font-size: 14px;" 
+          id="ebay-key">
+        <button onclick="saveEbayKey()" class="btn btn-sm" style="background: rgba(59,130,246,0.2); border-color: rgba(59,130,246,0.4); color: #3b82f6; white-space:nowrap;">Save Key</button>
+      </div>
+      <div id="ebay-key-status" style="font-size:12px; margin-top:8px; color: var(--text-muted);"></div>
+    </div>
+
+    <br>
+    <button class="btn btn-primary" onclick="loadDemo()" style="margin-right: 8px;">
+      🎴 Load Demo Cards
+    </button>
+    <button class="btn" onclick="clearAll()">
+      Clear
+    </button>
+  </div>
+
+  <!-- TRIAGE PANEL -->
+  <div class="panel" id="panel-triage">
+    <div id="triage-loading" style="display:none">
+      <div class="loading-bar"></div>
+      <div class="loading-text" id="loading-text">Fetching prices from Scryfall...</div>
+    </div>
+
+    <div id="triage-content" style="display:none">
+      <div class="triage-header">
+        <span class="progress-text" id="progress-label">0 / 0</span>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+        <button class="btn btn-sm" onclick="skipCard()">Skip →</button>
+      </div>
+
+      <div class="card-display" id="card-display">
+        <div class="card-main">
+          <div>
+            <div class="card-name" id="card-name">—</div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;" id="card-set">—</div>
+            <div class="card-meta" id="card-meta"></div>
+          </div>
+          <div id="card-image-container">
+            <div class="card-image-placeholder">🃏</div>
+          </div>
+        </div>
+
+        <div class="card-controls">
+          <label>Condition:</label>
+          <select class="condition-select" id="card-condition">
+            <option value="NM">NM — Near Mint</option>
+            <option value="LP">LP — Lightly Played</option>
+            <option value="MP">MP — Moderately Played</option>
+            <option value="HP">HP — Heavily Played</option>
+            <option value="DMG">DMG — Damaged</option>
+          </select>
+        </div>
+
+        <div class="price-section">
+          <div class="price-box">
+            <div class="label">TCG Market</div>
+            <div class="value" id="price-usd">—</div>
+          </div>
+          <div class="price-box">
+            <div class="label">Foil</div>
+            <div class="value" id="price-foil">—</div>
+          </div>
+          <div class="price-box">
+            <div class="label">Suggested</div>
+            <div class="value high" id="price-suggested">—</div>
+          </div>
+        </div>
+
+        <!-- eBay Sold Comps -->
+        <div id="ebay-comps-section" style="display:none; margin: 8px 0; background: rgba(59,130,246,0.06); border: 1px solid rgba(59,130,246,0.2); border-radius: 10px; padding: 12px;">
+          <div style="font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #3b82f6; margin-bottom: 8px;">⚡ eBay Sold Comps</div>
+          <div id="ebay-comps-list" style="font-size: 13px; color: var(--text-muted);">Loading...</div>
+        </div>
+        <div id="ebay-notice" class="ebay-notice" style="display:none;">
+          ⚡ eBay sold comps: add App ID in Settings to activate
+        </div>
+
+        <!-- Format Legality -->
+        <div class="format-legality" id="format-legality-section">
+          <div class="format-legality-label">Format Legality</div>
+          <div class="format-grid" id="format-grid"></div>
+        </div>
+
+        <div class="suggestion" id="suggestion-banner">
+          <span>⚡</span> <span id="suggestion-text">Loading suggestion...</span>
+        </div>
+      </div>
+
+      <div class="decision-buttons">
+        <button class="btn-decision btn-grade" onclick="decide('grade')">
+          <span class="icon">💎</span>Grade
+        </button>
+        <button class="btn-decision btn-ebay" onclick="decide('ebay')">
+          <span class="icon">🛒</span>eBay
+        </button>
+        <button class="btn-decision btn-tcg" onclick="decide('tcg')">
+          <span class="icon">🏪</span>TCGplayer
+        </button>
+        <button class="btn-decision btn-bulk" onclick="decide('bulk')">
+          <span class="icon">📦</span>Bulk
+        </button>
+        <button class="btn-decision btn-damaged" onclick="decide('damaged')">
+          <span class="icon">🗑</span>Damaged
+        </button>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-sm" onclick="prevCard()" id="btn-prev">← Back</button>
+        <button class="btn btn-sm btn-primary" onclick="nextCard()" id="btn-next">Next Card →</button>
+      </div>
+    </div>
+
+    <div class="empty-state" id="triage-empty">
+      <span class="icon">📂</span>
+      <h3>No Cards Loaded</h3>
+      <p>Import your Manabox CSV first,<br>then come back here to start triaging.</p>
+    </div>
+  </div>
+
+  <!-- RESULTS PANEL -->
+  <div class="panel" id="panel-results">
+    <div id="results-content" style="display:none">
+      <div class="results-summary">
+        <div class="result-bucket grade" onclick="filterResults('grade')">
+          <div class="bucket-icon">💎</div>
+          <div class="bucket-name">Grade</div>
+          <div class="bucket-count" id="count-grade">0</div>
+          <div class="bucket-value" id="val-grade">—</div>
+        </div>
+        <div class="result-bucket ebay" onclick="filterResults('ebay')">
+          <div class="bucket-icon">🛒</div>
+          <div class="bucket-name">eBay</div>
+          <div class="bucket-count" id="count-ebay">0</div>
+          <div class="bucket-value" id="val-ebay">—</div>
+        </div>
+        <div class="result-bucket tcg" onclick="filterResults('tcg')">
+          <div class="bucket-icon">🏪</div>
+          <div class="bucket-name">TCGplayer</div>
+          <div class="bucket-count" id="count-tcg">0</div>
+          <div class="bucket-value" id="val-tcg">—</div>
+        </div>
+        <div class="result-bucket bulk" onclick="filterResults('bulk')">
+          <div class="bucket-icon">📦</div>
+          <div class="bucket-name">Bulk</div>
+          <div class="bucket-count" id="count-bulk">0</div>
+          <div class="bucket-value" id="val-bulk">—</div>
+        </div>
+        <div class="result-bucket damaged" onclick="filterResults('damaged')">
+          <div class="bucket-icon">🗑</div>
+          <div class="bucket-name">Damaged</div>
+          <div class="bucket-count" id="count-damaged">0</div>
+          <div class="bucket-value" id="val-damaged">—</div>
+        </div>
+      </div>
+
+      <div class="result-list">
+        <div class="result-list-header">
+          <h3 id="results-filter-label">All Triaged Cards</h3>
+          <div class="filter-tabs">
+            <button class="filter-tab active" onclick="filterResults('all')">All</button>
+            <button class="filter-tab grade" onclick="filterResults('grade')">Grade</button>
+            <button class="filter-tab ebay" onclick="filterResults('ebay')">eBay</button>
+            <button class="filter-tab tcg" onclick="filterResults('tcg')">TCG</button>
+            <button class="filter-tab bulk" onclick="filterResults('bulk')">Bulk</button>
+            <button class="filter-tab damaged" onclick="filterResults('damaged')">Dmg</button>
+          </div>
+        </div>
+        <div class="result-list-scroll" id="results-list-body"></div>
+      </div>
+
+      <div class="export-bar">
+        <button class="btn btn-primary" onclick="exportCSV('all')">⬇ Export All CSV</button>
+        <button class="btn" onclick="exportCSV('ebay')">🛒 eBay List</button>
+        <button class="btn" onclick="exportCSV('tcg')">🏪 TCG List</button>
+        <button class="btn" onclick="exportCSV('grade')">💎 Grade List</button>
+      </div>
+    </div>
+
+    <div class="empty-state" id="results-empty">
+      <span class="icon">📊</span>
+      <h3>No Results Yet</h3>
+      <p>Complete some triage decisions<br>and your sorted results will appear here.</p>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== STATE =====
+let allCards = [];
+let currentIndex = 0;
+let decisions = {}; // scryfallId/name -> { bucket, price, foilPrice, name, set }
+let priceCache = {};
+let activeFilter = 'all';
+
+// ===== TAB SWITCHING =====
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', ['import','triage','results'][i] === name);
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  if (name === 'triage') initTriage();
+  if (name === 'results') renderResults();
+}
+
+// ===== CSV PARSING =====
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => parseCSV(ev.target.result);
+  reader.readAsText(file);
+}
+
+function parseCSV(text) {
+  const lines = text.split('\n').filter(l => l.trim());
+  if (lines.length < 2) { showToast('CSV appears empty', 'error'); return; }
+  
+  const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim().toLowerCase());
+  const cards = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    const row = parseCSVRow(lines[i]);
+    if (row.length < 2) continue;
+    const obj = {};
+    headers.forEach((h, idx) => obj[h] = (row[idx] || '').replace(/"/g, '').trim());
+    
+    const name = obj['name'] || obj['card name'] || obj['cardname'] || '';
+    const set = obj['set code'] || obj['set name'] || obj['setcode'] || obj['set'] || '';
+    const scryfallId = obj['scryfall id'] || obj['scryfallid'] || '';
+    const condition = obj['condition'] || 'NM';
+    const foil = obj['foil'] || '';
+    const rarity = obj['rarity'] || '';
+    const qty = parseInt(obj['quantity'] || obj['qty'] || '1') || 1;
+    
+    if (name) {
+      cards.push({ name, set, scryfallId, condition, foil: foil === 'foil' || foil === 'true', rarity, qty, raw: obj });
+    }
+  }
+
+  if (cards.length === 0) { showToast('No cards found in CSV', 'error'); return; }
+  
+  allCards = cards;
+  currentIndex = 0;
+  decisions = {};
+  updateStats();
+  showToast(`Loaded ${cards.length} cards`, 'success');
+  switchTab('triage');
+}
+
+function parseCSVRow(line) {
+  const result = [];
+  let cur = '', inQuote = false;
+  for (let c of line) {
+    if (c === '"') { inQuote = !inQuote; }
+    else if (c === ',' && !inQuote) { result.push(cur); cur = ''; }
+    else cur += c;
+  }
+  result.push(cur);
+  return result;
+}
+
+// ===== DEMO DATA =====
+function loadDemo() {
+  allCards = [
+    { name: 'Sheoldred, the Apocalypse', set: 'DMU', scryfallId: '', condition: 'NM', foil: false, rarity: 'mythic', qty: 1 },
+    { name: 'Black Lotus', set: 'LEA', scryfallId: '', condition: 'HP', foil: false, rarity: 'rare', qty: 1 },
+    { name: 'Force of Will', set: 'ALL', scryfallId: '', condition: 'LP', foil: false, rarity: 'uncommon', qty: 2 },
+    { name: 'Lightning Bolt', set: 'M11', scryfallId: '', condition: 'NM', foil: false, rarity: 'common', qty: 4 },
+    { name: 'Counterspell', set: '7ED', scryfallId: '', condition: 'NM', foil: false, rarity: 'common', qty: 3 },
+    { name: 'Jace, the Mind Sculptor', set: 'WWK', scryfallId: '', condition: 'LP', foil: false, rarity: 'mythic', qty: 1 },
+    { name: 'Brainstorm', set: 'ICE', scryfallId: '', condition: 'NM', foil: false, rarity: 'common', qty: 4 },
+    { name: 'Sol Ring', set: '1ED', scryfallId: '', condition: 'MP', foil: false, rarity: 'uncommon', qty: 1 },
+  ];
+  currentIndex = 0;
+  decisions = {};
+  updateStats();
+  showToast(`Loaded ${allCards.length} demo cards`, 'success');
+  switchTab('triage');
+}
+
+function clearAll() {
+  allCards = [];
+  decisions = {};
+  currentIndex = 0;
+  priceCache = {};
+  updateStats();
+  showToast('Cleared', 'success');
+}
+
+// ===== TRIAGE =====
+async function initTriage() {
+  if (allCards.length === 0) {
+    document.getElementById('triage-content').style.display = 'none';
+    document.getElementById('triage-loading').style.display = 'none';
+    document.getElementById('triage-empty').style.display = 'block';
+    return;
+  }
+  document.getElementById('triage-empty').style.display = 'none';
+  // Find first undecided card
+  while (currentIndex < allCards.length && decisions[cardKey(allCards[currentIndex])]) {
+    currentIndex++;
+  }
+  if (currentIndex >= allCards.length) currentIndex = 0;
+  await showCard(currentIndex);
+}
+
+function cardKey(card) {
+  return card.scryfallId || (card.name + '|' + card.set);
+}
+
+async function showCard(idx) {
+  if (idx >= allCards.length) {
+    showToast('All cards triaged! Check Results tab.', 'success');
+    switchTab('results');
+    return;
+  }
+
+  const card = allCards[idx];
+  document.getElementById('triage-content').style.display = 'none';
+  document.getElementById('triage-loading').style.display = 'block';
+  
+  updateProgress();
+
+  // Set condition from card data
+  const condEl = document.getElementById('card-condition');
+  const condMap = { 'NM': 'NM', 'LP': 'LP', 'MP': 'MP', 'HP': 'HP', 'DMG': 'DMG', 
+                    'Near Mint': 'NM', 'Lightly Played': 'LP', 'Moderately Played': 'MP', 
+                    'Heavily Played': 'HP', 'Damaged': 'DMG' };
+  condEl.value = condMap[card.condition] || 'NM';
+
+  // Fetch price
+  const key = cardKey(card);
+  let data = priceCache[key];
+  if (!data) {
+    data = await fetchScryfall(card);
+    if (data) priceCache[key] = data;
+  }
+
+  document.getElementById('triage-loading').style.display = 'none';
+  document.getElementById('triage-content').style.display = 'block';
+
+  // Populate UI
+  document.getElementById('card-name').textContent = card.name;
+  document.getElementById('card-set').textContent = data ? 
+    `${data.set_name || card.set} — ${data.collector_number ? '#' + data.collector_number : ''}` : 
+    card.set;
+
+  // Meta tags
+  const metaEl = document.getElementById('card-meta');
+  metaEl.innerHTML = '';
+  const rarity = (data?.rarity || card.rarity || '').toLowerCase();
+  if (rarity) {
+    const tag = document.createElement('span');
+    tag.className = 'meta-tag rarity-' + rarity[0];
+    tag.textContent = rarity.charAt(0).toUpperCase() + rarity.slice(1);
+    metaEl.appendChild(tag);
+  }
+  if (card.foil) {
+    const tag = document.createElement('span');
+    tag.className = 'meta-tag';
+    tag.textContent = '✨ Foil';
+    tag.style.borderColor = 'var(--accent)';
+    tag.style.color = 'var(--accent)';
+    metaEl.appendChild(tag);
+  }
+  if (card.qty > 1) {
+    const tag = document.createElement('span');
+    tag.className = 'meta-tag';
+    tag.textContent = `Qty: ${card.qty}`;
+    metaEl.appendChild(tag);
+  }
+
+  // Image
+  const imgContainer = document.getElementById('card-image-container');
+  if (data?.image_uris?.small || data?.card_faces?.[0]?.image_uris?.small) {
+    const imgUrl = data.image_uris?.small || data.card_faces[0].image_uris.small;
+    imgContainer.innerHTML = `<img class="card-image" src="${imgUrl}" alt="${card.name}" onerror="this.parentElement.innerHTML='<div class=\\'card-image-placeholder\\'>🃏</div>'">`;
+  } else {
+    imgContainer.innerHTML = '<div class="card-image-placeholder">🃏</div>';
+  }
+
+  // Prices
+  const usd = data?.prices?.usd ? parseFloat(data.prices.usd) : null;
+  const usdFoil = data?.prices?.usd_foil ? parseFloat(data.prices.usd_foil) : null;
+  const usdEtched = data?.prices?.usd_etched ? parseFloat(data.prices.usd_etched) : null;
+
+  // Fix: foil card with no foil price = Manual Check, never silently use non-foil price
+  const foilMissing = card.foil && !usdFoil && !usdEtched;
+  const activePrice = card.foil ? (usdFoil || usdEtched || null) : usd;
+
+  document.getElementById('price-usd').textContent = usd ? `$${usd.toFixed(2)}` : '—';
+  document.getElementById('price-usd').className = 'value' + (usd && usd >= 15 ? ' high' : '');
+  document.getElementById('price-foil').textContent = usdFoil ? `$${usdFoil.toFixed(2)}` : (usdEtched ? `$${usdEtched.toFixed(2)} (etched)` : '—');
+  document.getElementById('price-foil').className = 'value' + (!usdFoil && !usdEtched ? ' na' : '');
+
+  if (foilMissing) {
+    document.getElementById('price-suggested').textContent = '⚠ Manual Check';
+    document.getElementById('price-suggested').style.color = '#f97316';
+    document.getElementById('price-suggested').style.fontSize = '14px';
+  } else {
+    document.getElementById('price-suggested').textContent = activePrice ? `$${activePrice.toFixed(2)}` : '—';
+    document.getElementById('price-suggested').style.color = '';
+    document.getElementById('price-suggested').style.fontSize = '';
+  }
+
+  // Format legality
+  const formatGrid = document.getElementById('format-grid');
+  const priorityFormats = ['standard','pioneer','modern','legacy','vintage','commander','pauper','historic','explorer'];
+  const formatLabels = {
+    standard: 'Standard', pioneer: 'Pioneer', modern: 'Modern',
+    legacy: 'Legacy', vintage: 'Vintage', commander: 'Commander',
+    pauper: 'Pauper', historic: 'Historic', explorer: 'Explorer'
+  };
+
+  if (data?.legalities) {
+    formatGrid.innerHTML = priorityFormats.map(fmt => {
+      const status = data.legalities[fmt] || 'not_legal';
+      if (status === 'not_legal') return ''; // hide not_legal to keep it clean
+      return `<span class="format-tag ${status}">${formatLabels[fmt] || fmt}${status === 'restricted' ? ' (R)' : ''}${status === 'banned' ? ' ✕' : ''}</span>`;
+    }).join('') || '<span style="font-size:12px;color:var(--text-dim)">No format data</span>';
+
+    // Also show banned/restricted ones even if not in priority list
+    const bannedOrRestricted = Object.entries(data.legalities)
+      .filter(([fmt, status]) => (status === 'banned' || status === 'restricted') && !priorityFormats.includes(fmt));
+    if (bannedOrRestricted.length > 0) {
+      formatGrid.innerHTML += bannedOrRestricted.map(([fmt, status]) =>
+        `<span class="format-tag ${status}">${fmt}${status === 'restricted' ? ' (R)' : ''}${status === 'banned' ? ' ✕' : ''}</span>`
+      ).join('');
+    }
+    document.getElementById('format-legality-section').style.display = 'block';
+  } else {
+    document.getElementById('format-legality-section').style.display = 'none';
+  }
+
+  // Suggestion
+  const thresh = {
+    grade: parseFloat(document.getElementById('thresh-grade').value) || 50,
+    ebay: parseFloat(document.getElementById('thresh-ebay').value) || 15,
+    tcg: parseFloat(document.getElementById('thresh-tcg').value) || 1,
+  };
+
+  let bucket = 'bulk', bucketLabel = 'Bulk — accumulate for shows/lots';
+  if (foilMissing) { bucket = 'ebay'; bucketLabel = 'Manual Check — foil price unavailable, look up before deciding'; }
+  else if (condEl.value === 'DMG') { bucket = 'damaged'; bucketLabel = 'Damaged — not worth selling'; }
+  else if (activePrice >= thresh.grade) { bucket = 'grade'; bucketLabel = `Grade — raw value $${activePrice?.toFixed(2)}, graded could be significantly higher`; }
+  else if (activePrice >= thresh.ebay) { bucket = 'ebay'; bucketLabel = `List on eBay — $${activePrice?.toFixed(2)} is worth individual listing effort`; }
+  else if (activePrice >= thresh.tcg) { bucket = 'tcg'; bucketLabel = `TCGplayer — $${activePrice?.toFixed(2)}, bag it and shelf it`; }
+  
+  const bannerEl = document.getElementById('suggestion-banner');
+  bannerEl.className = 'suggestion ' + bucket;
+  document.getElementById('suggestion-text').textContent = '💡 Suggested: ' + bucketLabel;
+
+  // Highlight existing decision if any
+  document.querySelectorAll('.btn-decision').forEach(b => b.classList.remove('selected'));
+  const existing = decisions[key];
+  if (existing) {
+    document.querySelector('.btn-' + existing.bucket)?.classList.add('selected');
+  }
+
+  // Store price for later
+  card._price = activePrice;
+  card._data = data;
+
+  // Show eBay notice if no key, else fetch comps
+  const ebayKey = localStorage.getItem('ebay_app_id');
+  if (!ebayKey) {
+    document.getElementById('ebay-notice').style.display = 'block';
+    document.getElementById('ebay-comps-section').style.display = 'none';
+  } else {
+    fetchEbaySold(card.name, data?.set_name || card.set);
+  }
+
+  // Background prefetch next batch while user is triaging current card
+  prefetchBatch(currentIndex + 1, 75);
+}
+
+async function fetchScryfall(card) {
+  try {
+    document.getElementById('loading-text').textContent = `Fetching: ${card.name}...`;
+    let url;
+    if (card.scryfallId) {
+      url = `https://api.scryfall.com/cards/${card.scryfallId}`;
+    } else {
+      const query = encodeURIComponent(`!"${card.name}"`);
+      const setParam = card.set ? `&set=${card.set.toLowerCase()}` : '';
+      url = `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(card.name)}${card.set ? '&set=' + card.set.toLowerCase() : ''}`;
+    }
+    
+    await new Promise(r => setTimeout(r, 100)); // Rate limit courtesy
+    const res = await fetch(url);
+    if (!res.ok) {
+      // Try fuzzy
+      const fuzzy = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(card.name)}`);
+      if (!fuzzy.ok) return null;
+      return await fuzzy.json();
+    }
+    return await res.json();
+  } catch(e) {
+    return null;
+  }
+}
+
+// ===== EBAY API =====
+function saveEbayKey() {
+  const key = document.getElementById('ebay-key').value.trim();
+  if (!key) { showToast('Paste your eBay App ID first', 'error'); return; }
+  localStorage.setItem('ebay_app_id', key);
+  document.getElementById('ebay-key-status').textContent = '✓ Key saved';
+  document.getElementById('ebay-key-status').style.color = '#22c55e';
+  showToast('eBay App ID saved', 'success');
+}
+
+function loadEbayKey() {
+  const key = localStorage.getItem('ebay_app_id');
+  if (key) {
+    document.getElementById('ebay-key').value = key;
+    document.getElementById('ebay-key-status').textContent = '✓ Key loaded';
+    document.getElementById('ebay-key-status').style.color = '#22c55e';
+  }
+}
+
+async function fetchEbaySold(cardName, setName) {
+  const appId = localStorage.getItem('ebay_app_id');
+  if (!appId) {
+    document.getElementById('ebay-notice').style.display = 'block';
+    document.getElementById('ebay-comps-section').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('ebay-notice').style.display = 'none';
+  document.getElementById('ebay-comps-section').style.display = 'block';
+  document.getElementById('ebay-comps-list').textContent = 'Loading...';
+
+  // Build search query — card name + MTG to reduce noise
+  const query = `"${cardName}" MTG magic gathering`;
+  const url = `/.netlify/functions/ebay-search?query=${encodeURIComponent(query)}&appId=${encodeURIComponent(appId)}`;
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('eBay function error');
+    const data = await res.json();
+    const items = data.items || [];
+    
+    if (items.length === 0) {
+      document.getElementById('ebay-comps-list').innerHTML = '<span style="color:var(--text-dim)">No recent sold listings found</span>';
+      return;
+    }
+
+    const html = items.slice(0, 5).map(item => {
+      const title = item.title?.[0] || '';
+      const price = parseFloat(item.sellingStatus?.[0]?.convertedCurrentPrice?.[0]?.__value__ || 0);
+      const endTime = item.listingInfo?.[0]?.endTime?.[0] || '';
+      const date = endTime ? new Date(endTime).toLocaleDateString() : '';
+      const url = item.viewItemURL?.[0] || '#';
+      const condition = item.condition?.[0]?.conditionDisplayName?.[0] || '';
+      return `<div style="display:flex; justify-content:space-between; align-items:center; padding: 5px 0; border-bottom: 1px solid rgba(59,130,246,0.1);">
+        <div style="flex:1; min-width:0;">
+          <a href="${url}" target="_blank" style="color:var(--text-muted); font-size:12px; text-decoration:none; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${title}">${title.substring(0, 55)}${title.length > 55 ? '…' : ''}</a>
+          <span style="font-size:11px; color:var(--text-dim)">${condition} ${date ? '· ' + date : ''}</span>
+        </div>
+        <div style="font-weight:700; color:#3b82f6; margin-left:12px; white-space:nowrap;">$${price.toFixed(2)}</div>
+      </div>`;
+    }).join('');
+
+    // Calculate average
+    const prices = items.slice(0, 5).map(i => parseFloat(i.sellingStatus?.[0]?.convertedCurrentPrice?.[0]?.__value__ || 0)).filter(p => p > 0);
+    const avg = prices.length ? (prices.reduce((a,b) => a+b, 0) / prices.length) : 0;
+    const avgHtml = avg > 0 ? `<div style="text-align:right; font-size:12px; color:#3b82f6; margin-top:6px; font-weight:700;">Avg sold: $${avg.toFixed(2)}</div>` : '';
+
+    document.getElementById('ebay-comps-list').innerHTML = html + avgHtml;
+
+  } catch(e) {
+    document.getElementById('ebay-comps-list').innerHTML = '<span style="color:var(--text-dim)">Could not load eBay data</span>';
+  }
+}
+
+
+async function prefetchBatch(startIdx, batchSize = 75) {
+  const toFetch = [];
+  for (let i = startIdx; i < Math.min(startIdx + batchSize, allCards.length); i++) {
+    const card = allCards[i];
+    const key = cardKey(card);
+    if (!priceCache[key]) toFetch.push({ idx: i, card });
+  }
+  if (toFetch.length === 0) return;
+
+  const identifiers = toFetch.map(({ card }) => {
+    if (card.scryfallId) return { id: card.scryfallId };
+    if (card.set) return { name: card.name, set: card.set.toLowerCase() };
+    return { name: card.name };
+  });
+
+  try {
+    await new Promise(r => setTimeout(r, 100));
+    const res = await fetch('https://api.scryfall.com/cards/collection', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identifiers })
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    const results = data.data || [];
+    results.forEach(cardData => {
+      // Match back to our cards by name + set
+      const match = toFetch.find(({ card }) =>
+        card.name.toLowerCase() === (cardData.name || '').toLowerCase() ||
+        card.scryfallId === cardData.id
+      );
+      if (match) {
+        priceCache[cardKey(match.card)] = cardData;
+      }
+    });
+  } catch(e) {
+    // Silent fail — individual fetches will handle misses
+  }
+}
+
+function decide(bucket) {
+  if (allCards.length === 0) return;
+  const card = allCards[currentIndex];
+  const key = cardKey(card);
+  decisions[key] = { 
+    bucket, 
+    price: card._price, 
+    name: card.name, 
+    set: card.set,
+    rarity: card._data?.rarity || card.rarity,
+    condition: document.getElementById('card-condition').value,
+    foil: card.foil,
+    qty: card.qty,
+    legalities: card._data?.legalities || {}
+  };
+  
+  document.querySelectorAll('.btn-decision').forEach(b => b.classList.remove('selected'));
+  document.querySelector('.btn-' + bucket)?.classList.add('selected');
+  
+  updateStats();
+  
+  // Auto-advance after brief delay
+  setTimeout(() => nextCard(), 300);
+}
+
+async function nextCard() {
+  currentIndex++;
+  // Skip already-decided
+  while (currentIndex < allCards.length && decisions[cardKey(allCards[currentIndex])]) {
+    currentIndex++;
+  }
+  if (currentIndex >= allCards.length) {
+    // Find any undecided
+    currentIndex = allCards.findIndex(c => !decisions[cardKey(c)]);
+    if (currentIndex === -1) {
+      showToast('All cards triaged!', 'success');
+      switchTab('results');
+      return;
+    }
+  }
+  await showCard(currentIndex);
+}
+
+async function prevCard() {
+  if (currentIndex > 0) {
+    currentIndex--;
+    await showCard(currentIndex);
+  }
+}
+
+function skipCard() {
+  nextCard();
+}
+
+// ===== RESULTS =====
+function renderResults() {
+  const decided = Object.values(decisions);
+  if (decided.length === 0) {
+    document.getElementById('results-content').style.display = 'none';
+    document.getElementById('results-empty').style.display = 'block';
+    return;
+  }
+  document.getElementById('results-empty').style.display = 'none';
+  document.getElementById('results-content').style.display = 'block';
+
+  const buckets = ['grade','ebay','tcg','bulk','damaged'];
+  buckets.forEach(b => {
+    const cards = decided.filter(d => d.bucket === b);
+    const total = cards.reduce((sum, c) => sum + (c.price || 0) * (c.qty || 1), 0);
+    document.getElementById('count-' + b).textContent = cards.length;
+    document.getElementById('val-' + b).textContent = total > 0 ? `~$${total.toFixed(0)}` : '—';
+  });
+
+  filterResults(activeFilter);
+}
+
+function filterResults(filter) {
+  activeFilter = filter;
+  const decided = Object.values(decisions);
+  const filtered = filter === 'all' ? decided : decided.filter(d => d.bucket === filter);
+  
+  document.querySelectorAll('.filter-tab').forEach(t => {
+    t.classList.toggle('active', t.textContent.toLowerCase().includes(filter) || (filter === 'all' && t.textContent === 'All'));
+  });
+
+  const labels = { all: 'All Triaged Cards', grade: '💎 Grade Queue', ebay: '🛒 eBay Listings', tcg: '🏪 TCGplayer Inventory', bulk: '📦 Bulk Pile', damaged: '🗑 Damaged' };
+  document.getElementById('results-filter-label').textContent = labels[filter] || filter;
+
+  const body = document.getElementById('results-list-body');
+  if (filtered.length === 0) {
+    body.innerHTML = '<div class="loading-text">No cards in this category yet.</div>';
+    return;
+  }
+
+  const sorted = [...filtered].sort((a, b) => (b.price || 0) - (a.price || 0));
+  body.innerHTML = sorted.map(d => `
+    <div class="result-item">
+      <div class="bucket-dot ${d.bucket}"></div>
+      <div class="result-item-info">
+        <div class="result-item-name">${d.name}${d.foil ? ' ✨' : ''}</div>
+        <div class="result-item-meta">${d.set || '—'} · ${d.condition || 'NM'}${d.qty > 1 ? ` · Qty: ${d.qty}` : ''}</div>
+      </div>
+      <div class="result-item-price" style="color: var(--${d.bucket})">${d.price ? '$' + d.price.toFixed(2) : '—'}</div>
+    </div>
+  `).join('');
+}
+
+// ===== EXPORT =====
+function exportCSV(filter) {
+  const decided = Object.values(decisions);
+  const filtered = filter === 'all' ? decided : decided.filter(d => d.bucket === filter);
+  if (filtered.length === 0) { showToast('No cards in this category', 'error'); return; }
+  
+  const headers = 'Name,Set,Condition,Foil,Quantity,Price,Bucket,Standard,Pioneer,Modern,Legacy,Vintage,Commander,Pauper';
+  const rows = filtered.map(d => {
+    const l = d.legalities || {};
+    return `"${d.name}","${d.set || ''}","${d.condition || 'NM'}","${d.foil ? 'Yes' : 'No'}","${d.qty || 1}","${d.price ? d.price.toFixed(2) : ''}","${d.bucket}","${l.standard||''}","${l.pioneer||''}","${l.modern||''}","${l.legacy||''}","${l.vintage||''}","${l.commander||''}","${l.pauper||''}"`;
+  });
+  
+  const csv = [headers, ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `triage-${filter}-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(`Exported ${filtered.length} cards`, 'success');
+}
+
+// ===== UTILS =====
+function updateProgress() {
+  const total = allCards.length;
+  const done = Object.keys(decisions).length;
+  const remaining = total - done;
+  const pct = total > 0 ? (done / total * 100) : 0;
+  
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `${done} / ${total}`;
+}
+
+function updateStats() {
+  const done = Object.keys(decisions).length;
+  const remaining = allCards.length - done;
+  document.getElementById('stat-processed').textContent = done;
+  document.getElementById('stat-remaining').textContent = allCards.length > 0 ? remaining : '—';
+}
+
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ===== DRAG & DROP =====
+const dropZone = document.getElementById('drop-zone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = ev => parseCSV(ev.target.result);
+    reader.readAsText(file);
+  }
+});
+
+// ===== INIT =====
+loadEbayKey();
+</script>
+</body>
+</html>
