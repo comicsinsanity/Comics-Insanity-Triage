@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WaxTriage">
+<title>WaxTriage — Sports Card Inventory Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111520;
+    --surface2: #181d2e;
+    --border: #252d45;
+    --accent: #c9a84c;
+    --accent2: #e8c97a;
+    --grade: #a855f7;
+    --show: #3b82f6;
+    --dollarbox: #22c55e;
+    --trash: #6b7280;
+    --target: #f59e0b;
+    --text: #e8eaf0;
+    --text-muted: #6b7a99;
+    --text-dim: #3d4a6b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(201,168,76,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(245,158,11,0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,12,16,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-family: 'Cinzel', serif;
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .logo span {
+    font-weight: 700;
+    opacity: 0.6;
+    font-size: 13px;
+    letter-spacing: 3px;
+    display: block;
+    margin-top: -4px;
+  }
+
+  .logo-sub {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-top: 2px;
+    -webkit-text-fill-color: var(--text-dim);
+  }
+
+  .session-stats {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+  }
+
+  .session-stats b { color: var(--accent); }
+
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 20px;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 8px 4px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 7px;
+    transition: all 0.2s;
+  }
+
+  .tab.active {
+    background: var(--surface2);
+    color: var(--accent);
+    border: 1px solid var(--border);
+  }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface2);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #0a0c10; }
+  .btn-primary:hover { background: var(--accent2); border-color: var(--accent2); color: #0a0c10; }
+  .btn-sm { padding: 6px 14px; font-size: 12px; }
+  .btn-danger { border-color: #ef4444; color: #ef4444; }
+  .btn-danger:hover { background: rgba(239,68,68,0.1); }
+
+  .settings-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+  }
+
+  .settings-card h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+
+  .threshold-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .threshold-item { display: flex; flex-direction: column; gap: 6px; }
+
+  .threshold-item label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .threshold-item input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+
+  .threshold-item input:focus { outline: none; border-color: var(--accent); }
+
+  /* Target players */
+  .player-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .player-tag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    background: rgba(245,158,11,0.1);
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--target);
+    letter-spacing: 0.5px;
+  }
+
+  .player-tag button {
+    background: none;
+    border: none;
+    color: rgba(245,158,11,0.5);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    transition: color 0.15s;
+  }
+
+  .player-tag button:hover { color: #ef4444; }
+
+  .player-add-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .player-input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    transition: border-color 0.2s;
+  }
+
+  .player-input:focus { outline: none; border-color: var(--accent); }
+  .player-input::placeholder { color: var(--text-dim); }
+
+  /* Manual entry form */
+  .entry-form {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .entry-form::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    border-radius: 16px 16px 0 0;
+  }
+
+  .entry-form h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  @media (max-width: 480px) {
+    .form-grid { grid-template-columns: 1fr; }
+  }
+
+  .form-field { display: flex; flex-direction: column; gap: 6px; }
+
+  .form-field label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .form-field input, .form-field select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+
+  .form-field input:focus, .form-field select:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .form-field input::placeholder { color: var(--text-dim); }
+
+  /* Target player alert */
+  .target-alert {
+    padding: 12px 16px;
+    background: rgba(245,158,11,0.1);
+    border: 1px solid rgba(245,158,11,0.4);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--target);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: none;
+  }
+
+  .target-alert.visible { display: flex; align-items: center; gap: 10px; }
+
+  /* Suggestion */
+  .suggestion {
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .suggestion.grade { background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.3); color: var(--grade); }
+  .suggestion.show { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); color: var(--show); }
+  .suggestion.dollarbox { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: var(--dollarbox); }
+  .suggestion.trash { background: rgba(107,114,128,0.1); border: 1px solid rgba(107,114,128,0.3); color: var(--trash); }
+
+  /* Decision buttons */
+  .decision-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  @media (max-width: 400px) {
+    .decision-buttons { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .btn-decision {
+    padding: 14px 8px;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.15s;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .btn-decision .icon { font-size: 20px; }
+
+  .btn-grade { background: rgba(168,85,247,0.1); border-color: rgba(168,85,247,0.3); color: var(--grade); }
+  .btn-grade:hover, .btn-grade.selected { background: rgba(168,85,247,0.25); border-color: var(--grade); }
+
+  .btn-show { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); color: var(--show); }
+  .btn-show:hover, .btn-show.selected { background: rgba(59,130,246,0.25); border-color: var(--show); }
+
+  .btn-dollarbox { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.3); color: var(--dollarbox); }
+  .btn-dollarbox:hover, .btn-dollarbox.selected { background: rgba(34,197,94,0.25); border-color: var(--dollarbox); }
+
+  .btn-trash { background: rgba(107,114,128,0.1); border-color: rgba(107,114,128,0.3); color: var(--trash); }
+  .btn-trash:hover, .btn-trash.selected { background: rgba(107,114,128,0.25); border-color: var(--trash); }
+
+  /* Recent decisions */
+  .recent-header {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .recent-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .recent-list::-webkit-scrollbar { width: 4px; }
+  .recent-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .recent-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .recent-item:hover { background: var(--surface2); }
+
+  .recent-item-info { flex: 1; }
+  .recent-item-name { font-weight: 700; }
+  .recent-item-meta { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+  .bucket-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .bucket-dot.grade { background: var(--grade); }
+  .bucket-dot.show { background: var(--show); }
+  .bucket-dot.dollarbox { background: var(--dollarbox); }
+  .bucket-dot.trash { background: var(--trash); }
+
+  /* eBay notice */
+  .ebay-notice {
+    background: rgba(59,130,246,0.04);
+    border: 1px solid rgba(59,130,246,0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: rgba(59,130,246,0.6);
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+  }
+
+  /* Results */
+  .results-summary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  @media (min-width: 600px) {
+    .results-summary { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  .result-bucket {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .result-bucket:hover { border-color: var(--accent); }
+  .result-bucket .bucket-icon { font-size: 24px; margin-bottom: 8px; }
+  .result-bucket .bucket-name { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  .result-bucket .bucket-count { font-size: 28px; font-weight: 700; }
+  .result-bucket .bucket-value { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  .result-bucket.grade .bucket-count { color: var(--grade); }
+  .result-bucket.show .bucket-count { color: var(--show); }
+  .result-bucket.dollarbox .bucket-count { color: var(--dollarbox); }
+  .result-bucket.trash .bucket-count { color: var(--trash); }
+
+  .result-list {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .result-list-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .result-list-header h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .filter-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+
+  .filter-tab {
+    padding: 4px 10px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .filter-tab.active, .filter-tab:hover { background: var(--surface2); color: var(--text); }
+  .filter-tab.grade.active { color: var(--grade); border-color: var(--grade); }
+  .filter-tab.show.active { color: var(--show); border-color: var(--show); }
+  .filter-tab.dollarbox.active { color: var(--dollarbox); border-color: var(--dollarbox); }
+  .filter-tab.trash.active { color: var(--trash); border-color: var(--trash); }
+
+  .result-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: background 0.15s;
+  }
+
+  .result-item:last-child { border-bottom: none; }
+  .result-item:hover { background: var(--surface2); }
+  .result-item-info { flex: 1; min-width: 0; }
+  .result-item-name { font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .result-item-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .result-item-right { text-align: right; }
+  .result-item-bucket { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+
+  .target-star { color: var(--target); font-size: 12px; }
+
+  .result-list-scroll {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .result-list-scroll::-webkit-scrollbar { width: 4px; }
+  .result-list-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .export-bar {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+
+  .empty-state .icon { font-size: 48px; margin-bottom: 16px; display: block; }
+  .empty-state h3 { font-family: 'Cinzel', serif; color: var(--text-dim); font-size: 16px; margin-bottom: 8px; }
+  .empty-state p { font-size: 14px; line-height: 1.6; }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: var(--dollarbox); color: var(--dollarbox); }
+  .toast.error { border-color: #ef4444; color: #ef4444; }
+
+  .progress-bar {
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  .session-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .session-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    WaxTriage
+    <span>Sports Cards</span>
+    <div class="logo-sub">Comics Insanity</div>
+  </div>
+  <div class="session-stats">
+    <span>Triaged: <b id="stat-processed">0</b></span>
+    <span>This Session</span>
+  </div>
+</header>
+
+<main>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('triage')">① Triage</button>
+    <button class="tab" onclick="switchTab('settings')">⚙ Settings</button>
+    <button class="tab" onclick="switchTab('results')" id="tab-results">③ Results</button>
+  </div>
+
+  <!-- TRIAGE PANEL -->
+  <div class="panel active" id="panel-triage">
+
+    <div class="session-info">
+      <span class="session-label" id="session-count">0 cards triaged this session</span>
+      <button class="btn btn-sm" onclick="clearSession()">New Session</button>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+
+    <div class="ebay-notice">
+      ⚡ eBay sold comps coming soon — add your API key in Settings to activate live pricing
+    </div>
+
+    <div class="entry-form">
+      <h3>Card Entry</h3>
+      <div class="form-grid">
+        <div class="form-field" style="grid-column: 1 / -1;">
+          <label>Player Name</label>
+          <input type="text" id="entry-player" placeholder="e.g. Shaquille O'Neal" 
+            oninput="checkTargetPlayer()" onkeydown="handleEnter(event)">
+        </div>
+        <div class="form-field">
+          <label>Year</label>
+          <input type="text" id="entry-year" placeholder="e.g. 1992" maxlength="4"
+            onkeydown="handleEnter(event)">
+        </div>
+        <div class="form-field">
+          <label>Set / Brand</label>
+          <input type="text" id="entry-set" placeholder="e.g. Topps, Upper Deck"
+            onkeydown="handleEnter(event)">
+        </div>
+        <div class="form-field">
+          <label>Card #</label>
+          <input type="text" id="entry-number" placeholder="e.g. 362"
+            onkeydown="handleEnter(event)">
+        </div>
+        <div class="form-field">
+          <label>Condition</label>
+          <select id="entry-condition">
+            <option value="Mint">Mint</option>
+            <option value="NM" selected>NM — Near Mint</option>
+            <option value="EX">EX — Excellent</option>
+            <option value="VG">VG — Very Good</option>
+            <option value="GD">GD — Good</option>
+            <option value="FR">FR — Fair</option>
+            <option value="PR">PR — Poor</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Qty</label>
+          <input type="number" id="entry-qty" value="1" min="1"
+            onkeydown="handleEnter(event)">
+        </div>
+        <div class="form-field" style="grid-column: 1 / -1;">
+          <label>Notes (optional)</label>
+          <input type="text" id="entry-notes" placeholder="e.g. Rookie card, newsstand, autograph..."
+            onkeydown="handleEnter(event)">
+        </div>
+      </div>
+
+      <div class="target-alert" id="target-alert">
+        🎯 <span id="target-alert-text">TARGET PLAYER — pull and evaluate individually</span>
+      </div>
+
+      <div class="suggestion" id="suggestion-banner" style="display:none">
+        <span id="suggestion-text">—</span>
+      </div>
+    </div>
+
+    <div class="decision-buttons">
+      <button class="btn-decision btn-grade" onclick="decide('grade')">
+        <span class="icon">💎</span>Grade
+      </button>
+      <button class="btn-decision btn-show" onclick="decide('show')">
+        <span class="icon">🏷</span>Show
+      </button>
+      <button class="btn-decision btn-dollarbox" onclick="decide('dollarbox')">
+        <span class="icon">📦</span>$1 Box
+      </button>
+      <button class="btn-decision btn-trash" onclick="decide('trash')">
+        <span class="icon">🗑</span>Trash
+      </button>
+    </div>
+
+    <div id="recent-section" style="display:none">
+      <div class="recent-header">Recent Decisions</div>
+      <div class="recent-list" id="recent-list"></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS PANEL -->
+  <div class="panel" id="panel-settings">
+    <div class="settings-card">
+      <h3>Target Players</h3>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px; line-height:1.6;">
+        Cards matching these players will be flagged automatically and suggested for Show or Grade regardless of price.
+      </p>
+      <div class="player-list" id="player-list"></div>
+      <div class="player-add-row">
+        <input type="text" class="player-input" id="new-player-input" 
+          placeholder="Add player name..." onkeydown="if(event.key==='Enter') addPlayer()">
+        <button class="btn btn-primary btn-sm" onclick="addPlayer()">Add</button>
+      </div>
+    </div>
+
+    <div class="settings-card" style="margin-top:12px;">
+      <h3>Triage Thresholds</h3>
+      <div class="threshold-grid">
+        <div class="threshold-item">
+          <label style="color: var(--grade)">Grade if above $</label>
+          <input type="number" id="thresh-grade" value="50" min="0">
+        </div>
+        <div class="threshold-item">
+          <label style="color: var(--show)">Show if above $</label>
+          <input type="number" id="thresh-show" value="5" min="0">
+        </div>
+      </div>
+      <br>
+      <p style="font-size:12px; color:var(--text-muted); line-height:1.6;">
+        Without eBay pricing, target player flag overrides thresholds. All non-target cards default to $1 Box unless condition is Poor/Fair (Trash).
+      </p>
+    </div>
+
+    <div class="settings-card" style="margin-top:12px; background: rgba(59,130,246,0.04); border-color: rgba(59,130,246,0.2);">
+      <h3 style="color: rgba(59,130,246,0.7)">⚡ eBay Sold Comps — Coming Soon</h3>
+      <p style="font-size:13px; color:rgba(59,130,246,0.5); line-height:1.6;">
+        Once your eBay Developer account is approved, paste your API key here to enable real sold listing data.
+      </p>
+      <input type="text" 
+        style="width:100%; background:var(--surface2); border:1px solid rgba(59,130,246,0.2); border-radius:6px; padding:8px 12px; color:var(--text-muted); font-family:Rajdhani,sans-serif; font-size:14px; margin-top:8px;"
+        placeholder="eBay API Key (optional)" id="ebay-key">
+    </div>
+
+    <div style="margin-top:16px; display:flex; gap:8px;">
+      <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+      <button class="btn btn-danger" onclick="clearAllData()">Clear All Data</button>
+    </div>
+  </div>
+
+  <!-- RESULTS PANEL -->
+  <div class="panel" id="panel-results">
+    <div id="results-content" style="display:none">
+      <div class="results-summary">
+        <div class="result-bucket grade" onclick="filterResults('grade')">
+          <div class="bucket-icon">💎</div>
+          <div class="bucket-name">Grade</div>
+          <div class="bucket-count" id="count-grade">0</div>
+          <div class="bucket-value" id="val-grade">—</div>
+        </div>
+        <div class="result-bucket show" onclick="filterResults('show')">
+          <div class="bucket-icon">🏷</div>
+          <div class="bucket-name">Show / eBay</div>
+          <div class="bucket-count" id="count-show">0</div>
+          <div class="bucket-value" id="val-show">—</div>
+        </div>
+        <div class="result-bucket dollarbox" onclick="filterResults('dollarbox')">
+          <div class="bucket-icon">📦</div>
+          <div class="bucket-name">$1 Box</div>
+          <div class="bucket-count" id="count-dollarbox">0</div>
+          <div class="bucket-value" id="val-dollarbox">—</div>
+        </div>
+        <div class="result-bucket trash" onclick="filterResults('trash')">
+          <div class="bucket-icon">🗑</div>
+          <div class="bucket-name">Trash</div>
+          <div class="bucket-count" id="count-trash">0</div>
+          <div class="bucket-value" id="val-trash">—</div>
+        </div>
+      </div>
+
+      <div class="result-list">
+        <div class="result-list-header">
+          <h3 id="results-filter-label">All Triaged Cards</h3>
+          <div class="filter-tabs">
+            <button class="filter-tab active" onclick="filterResults('all')">All</button>
+            <button class="filter-tab grade" onclick="filterResults('grade')">Grade</button>
+            <button class="filter-tab show" onclick="filterResults('show')">Show</button>
+            <button class="filter-tab dollarbox" onclick="filterResults('dollarbox')">$1 Box</button>
+            <button class="filter-tab trash" onclick="filterResults('trash')">Trash</button>
+          </div>
+        </div>
+        <div class="result-list-scroll" id="results-list-body"></div>
+      </div>
+
+      <div class="export-bar">
+        <button class="btn btn-primary" onclick="exportCSV('all')">⬇ Export All CSV</button>
+        <button class="btn" onclick="exportCSV('show')">🏷 Show List</button>
+        <button class="btn" onclick="exportCSV('grade')">💎 Grade List</button>
+      </div>
+    </div>
+
+    <div class="empty-state" id="results-empty">
+      <span class="icon">🏀</span>
+      <h3>No Cards Triaged Yet</h3>
+      <p>Start triaging cards in the Triage tab<br>and your sorted results will appear here.</p>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== STATE =====
+let decisions = JSON.parse(localStorage.getItem('wax-decisions') || '[]');
+let targetPlayers = JSON.parse(localStorage.getItem('wax-players') || '["Shaquille O\'Neal","Shaq","Penny Hardaway","Anfernee Hardaway","Tracy McGrady","T-Mac","Julius Erving","Dr. J"]');
+let sessionCount = 0;
+let activeFilter = 'all';
+
+// ===== INIT =====
+renderPlayerTags();
+updateStats();
+renderRecentDecisions();
+if (decisions.length > 0) renderResults();
+
+// ===== TAB SWITCHING =====
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', ['triage','settings','results'][i] === name);
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  if (name === 'results') renderResults();
+}
+
+// ===== TARGET PLAYERS =====
+function renderPlayerTags() {
+  const list = document.getElementById('player-list');
+  list.innerHTML = targetPlayers.map((p, i) => `
+    <div class="player-tag">
+      🎯 ${p}
+      <button onclick="removePlayer(${i})">×</button>
+    </div>
+  `).join('');
+}
+
+function addPlayer() {
+  const input = document.getElementById('new-player-input');
+  const name = input.value.trim();
+  if (!name) return;
+  if (targetPlayers.some(p => p.toLowerCase() === name.toLowerCase())) {
+    showToast('Already in list', 'error');
+    return;
+  }
+  targetPlayers.push(name);
+  savePlayerList();
+  renderPlayerTags();
+  input.value = '';
+  showToast(`Added ${name}`, 'success');
+}
+
+function removePlayer(idx) {
+  targetPlayers.splice(idx, 1);
+  savePlayerList();
+  renderPlayerTags();
+}
+
+function savePlayerList() {
+  localStorage.setItem('wax-players', JSON.stringify(targetPlayers));
+}
+
+function isTargetPlayer(name) {
+  if (!name) return false;
+  const lower = name.toLowerCase();
+  return targetPlayers.some(p => lower.includes(p.toLowerCase()) || p.toLowerCase().includes(lower));
+}
+
+// ===== CARD ENTRY =====
+function checkTargetPlayer() {
+  const player = document.getElementById('entry-player').value;
+  const isTarget = isTargetPlayer(player);
+  const alert = document.getElementById('target-alert');
+  const suggestion = document.getElementById('suggestion-banner');
+
+  if (isTarget && player.trim()) {
+    alert.classList.add('visible');
+    document.getElementById('target-alert-text').textContent = `TARGET PLAYER — pull and evaluate individually`;
+    suggestion.style.display = 'flex';
+    suggestion.className = 'suggestion show';
+    document.getElementById('suggestion-text').textContent = '💡 Suggested: Show / eBay — target player, price individually';
+    // Highlight show button
+    document.querySelectorAll('.btn-decision').forEach(b => b.classList.remove('selected'));
+    document.querySelector('.btn-show')?.classList.add('selected');
+  } else {
+    alert.classList.remove('visible');
+    const cond = document.getElementById('entry-condition').value;
+    if (cond === 'PR' || cond === 'FR') {
+      suggestion.style.display = 'flex';
+      suggestion.className = 'suggestion trash';
+      document.getElementById('suggestion-text').textContent = '💡 Suggested: Trash — condition too poor to sell';
+    } else if (player.trim()) {
+      suggestion.style.display = 'flex';
+      suggestion.className = 'suggestion dollarbox';
+      document.getElementById('suggestion-text').textContent = '💡 Suggested: $1 Box — non-target player';
+    } else {
+      suggestion.style.display = 'none';
+    }
+    document.querySelectorAll('.btn-decision').forEach(b => b.classList.remove('selected'));
+  }
+}
+
+function handleEnter(e) {
+  if (e.key === 'Enter') {
+    // Move to next field or trigger decision if last field
+    const fields = ['entry-player','entry-year','entry-set','entry-number','entry-condition','entry-qty','entry-notes'];
+    const idx = fields.indexOf(e.target.id);
+    if (idx < fields.length - 1) {
+      document.getElementById(fields[idx + 1]).focus();
+    }
+  }
+}
+
+function decide(bucket) {
+  const player = document.getElementById('entry-player').value.trim();
+  if (!player) {
+    showToast('Enter a player name first', 'error');
+    document.getElementById('entry-player').focus();
+    return;
+  }
+
+  const card = {
+    player,
+    year: document.getElementById('entry-year').value.trim(),
+    set: document.getElementById('entry-set').value.trim(),
+    number: document.getElementById('entry-number').value.trim(),
+    condition: document.getElementById('entry-condition').value,
+    qty: parseInt(document.getElementById('entry-qty').value) || 1,
+    notes: document.getElementById('entry-notes').value.trim(),
+    isTarget: isTargetPlayer(player),
+    bucket,
+    timestamp: Date.now()
+  };
+
+  decisions.push(card);
+  localStorage.setItem('wax-decisions', JSON.stringify(decisions));
+  sessionCount++;
+  updateStats();
+  renderRecentDecisions();
+
+  // Flash selected
+  document.querySelectorAll('.btn-decision').forEach(b => b.classList.remove('selected'));
+  document.querySelector('.btn-' + bucket)?.classList.add('selected');
+
+  showToast(`${player} → ${bucket}`, 'success');
+
+  // Clear form for next card
+  setTimeout(() => {
+    document.getElementById('entry-player').value = '';
+    document.getElementById('entry-year').value = '';
+    document.getElementById('entry-set').value = '';
+    document.getElementById('entry-number').value = '';
+    document.getElementById('entry-condition').value = 'NM';
+    document.getElementById('entry-qty').value = '1';
+    document.getElementById('entry-notes').value = '';
+    document.getElementById('target-alert').classList.remove('visible');
+    document.getElementById('suggestion-banner').style.display = 'none';
+    document.querySelectorAll('.btn-decision').forEach(b => b.classList.remove('selected'));
+    document.getElementById('entry-player').focus();
+  }, 400);
+}
+
+// ===== RECENT DECISIONS =====
+function renderRecentDecisions() {
+  const section = document.getElementById('recent-section');
+  const list = document.getElementById('recent-list');
+
+  if (decisions.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+  const recent = [...decisions].reverse().slice(0, 8);
+  list.innerHTML = recent.map((d, i) => `
+    <div class="recent-item">
+      <div class="bucket-dot ${d.bucket}"></div>
+      <div class="recent-item-info">
+        <div class="recent-item-name">${d.player}${d.isTarget ? ' 🎯' : ''}</div>
+        <div class="recent-item-meta">${[d.year, d.set, d.number ? '#' + d.number : ''].filter(Boolean).join(' · ')}${d.qty > 1 ? ' · Qty: ' + d.qty : ''}</div>
+      </div>
+      <span style="font-size:11px; font-weight:700; letter-spacing:1px; color:var(--${d.bucket}); text-transform:uppercase;">${d.bucket}</span>
+    </div>
+  `).join('');
+}
+
+// ===== RESULTS =====
+function renderResults() {
+  if (decisions.length === 0) {
+    document.getElementById('results-content').style.display = 'none';
+    document.getElementById('results-empty').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('results-empty').style.display = 'none';
+  document.getElementById('results-content').style.display = 'block';
+
+  ['grade','show','dollarbox','trash'].forEach(b => {
+    const cards = decisions.filter(d => d.bucket === b);
+    const totalQty = cards.reduce((sum, c) => sum + (c.qty || 1), 0);
+    document.getElementById('count-' + b).textContent = totalQty;
+    document.getElementById('val-' + b).textContent = totalQty > 0 ? `${totalQty} card${totalQty !== 1 ? 's' : ''}` : '—';
+  });
+
+  filterResults(activeFilter);
+}
+
+function filterResults(filter) {
+  activeFilter = filter;
+  const filtered = filter === 'all' ? decisions : decisions.filter(d => d.bucket === filter);
+
+  document.querySelectorAll('.filter-tab').forEach(t => {
+    const match = t.textContent.toLowerCase().replace(/[^a-z]/g, '');
+    const filterClean = filter.replace(/[^a-z]/g, '');
+    t.classList.toggle('active', match.includes(filterClean) || (filter === 'all' && t.textContent === 'All'));
+  });
+
+  const labels = {
+    all: 'All Triaged Cards',
+    grade: '💎 Grade Queue',
+    show: '🏷 Show / eBay Stack',
+    dollarbox: '📦 $1 Box',
+    trash: '🗑 Trash Pile'
+  };
+  document.getElementById('results-filter-label').textContent = labels[filter] || filter;
+
+  const body = document.getElementById('results-list-body');
+  if (filtered.length === 0) {
+    body.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px;letter-spacing:1px;">No cards in this category.</div>';
+    return;
+  }
+
+  const sorted = [...filtered].reverse();
+  body.innerHTML = sorted.map(d => `
+    <div class="result-item">
+      <div class="bucket-dot ${d.bucket}"></div>
+      <div class="result-item-info">
+        <div class="result-item-name">${d.player}${d.isTarget ? ' 🎯' : ''}</div>
+        <div class="result-item-meta">${[d.year, d.set, d.number ? '#' + d.number : '', d.condition].filter(Boolean).join(' · ')}${d.qty > 1 ? ' · Qty: ' + d.qty : ''}${d.notes ? ' · ' + d.notes : ''}</div>
+      </div>
+      <div class="result-item-right">
+        <div class="result-item-bucket" style="color:var(--${d.bucket})">${d.bucket}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== EXPORT =====
+function exportCSV(filter) {
+  const filtered = filter === 'all' ? decisions : decisions.filter(d => d.bucket === filter);
+  if (filtered.length === 0) { showToast('No cards in this category', 'error'); return; }
+
+  const headers = 'Player,Year,Set,Card #,Condition,Quantity,Bucket,Target Player,Notes';
+  const rows = filtered.map(d =>
+    `"${d.player}","${d.year||''}","${d.set||''}","${d.number||''}","${d.condition||'NM'}","${d.qty||1}","${d.bucket}","${d.isTarget ? 'Yes' : 'No'}","${(d.notes||'').replace(/"/g,"'")}"`
+  );
+
+  const csv = [headers, ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `wax-triage-${filter}-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(`Exported ${filtered.length} cards`, 'success');
+}
+
+// ===== SETTINGS =====
+function saveSettings() {
+  savePlayerList();
+  showToast('Settings saved', 'success');
+}
+
+function clearSession() {
+  sessionCount = 0;
+  updateStats();
+  showToast('Session reset', 'success');
+}
+
+function clearAllData() {
+  if (!confirm('Clear all triaged cards? This cannot be undone.')) return;
+  decisions = [];
+  sessionCount = 0;
+  localStorage.removeItem('wax-decisions');
+  updateStats();
+  renderRecentDecisions();
+  showToast('All data cleared', 'success');
+}
+
+// ===== UTILS =====
+function updateStats() {
+  document.getElementById('stat-processed').textContent = sessionCount;
+  document.getElementById('session-count').textContent = `${sessionCount} card${sessionCount !== 1 ? 's' : ''} triaged this session`;
+  const pct = Math.min(sessionCount / 50 * 100, 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Focus player field on load
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('entry-player').focus();
+});
+</script>
+</body>
+</html>
