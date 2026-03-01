@@ -826,21 +826,6 @@
       </p>
     </div>
 
-    <div class="settings-card" style="margin-top: 12px; background: rgba(59,130,246,0.04); border-color: rgba(59,130,246,0.2);">
-      <h3 style="color: rgba(59,130,246,0.9)">⚡ eBay Sold Comps</h3>
-      <p style="font-size: 13px; color: rgba(59,130,246,0.6); line-height: 1.6;">
-        Paste your eBay App ID (Client ID) from developer.ebay.com to enable real sold listing data.
-      </p>
-      <br>
-      <div style="display:flex; gap:8px; align-items:center;">
-        <input type="text" placeholder="eBay App ID / Client ID" 
-          style="flex:1; background: var(--surface2); border: 1px solid rgba(59,130,246,0.3); border-radius: 6px; padding: 8px 12px; color: var(--text); font-family: Rajdhani, sans-serif; font-size: 14px;" 
-          id="ebay-key">
-        <button onclick="saveEbayKey()" class="btn btn-sm" style="background: rgba(59,130,246,0.2); border-color: rgba(59,130,246,0.4); color: #3b82f6; white-space:nowrap;">Save Key</button>
-      </div>
-      <div id="ebay-key-status" style="font-size:12px; margin-top:8px; color: var(--text-muted);"></div>
-    </div>
-
     <br>
     <button class="btn btn-primary" onclick="loadDemo()" style="margin-right: 8px;">
       🎴 Load Demo Cards
@@ -902,13 +887,12 @@
           </div>
         </div>
 
-        <!-- eBay Sold Comps -->
-        <div id="ebay-comps-section" style="display:none; margin: 8px 0; background: rgba(59,130,246,0.06); border: 1px solid rgba(59,130,246,0.2); border-radius: 10px; padding: 12px;">
-          <div style="font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #3b82f6; margin-bottom: 8px;">⚡ eBay Sold Comps</div>
-          <div id="ebay-comps-list" style="font-size: 13px; color: var(--text-muted);">Loading...</div>
-        </div>
-        <div id="ebay-notice" class="ebay-notice" style="display:none;">
-          ⚡ eBay sold comps: add App ID in Settings to activate
+        <!-- eBay Sold Comps Button -->
+        <div style="margin: 8px 0;">
+          <a id="ebay-sold-link" href="#" target="_blank"
+            style="display:block; text-align:center; background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.3); border-radius: 8px; padding: 10px; color: #3b82f6; font-size: 13px; font-weight: 700; text-decoration: none; letter-spacing: 0.5px;">
+            🛒 See Sold Listings on eBay
+          </a>
         </div>
 
         <!-- Format Legality -->
@@ -1300,14 +1284,8 @@ async function showCard(idx) {
   card._price = activePrice;
   card._data = data;
 
-  // Show eBay notice if no key, else fetch comps
-  const ebayKey = localStorage.getItem('ebay_app_id');
-  if (!ebayKey) {
-    document.getElementById('ebay-notice').style.display = 'block';
-    document.getElementById('ebay-comps-section').style.display = 'none';
-  } else {
-    fetchEbaySold(card.name, data?.set_name || card.set);
-  }
+  // Update eBay sold link for this card
+  updateEbayLink(card.name);
 
   // Background prefetch next batch while user is triaging current card
   prefetchBatch(currentIndex + 1, 75);
@@ -1339,78 +1317,12 @@ async function fetchScryfall(card) {
   }
 }
 
-// ===== EBAY API =====
-function saveEbayKey() {
-  const key = document.getElementById('ebay-key').value.trim();
-  if (!key) { showToast('Paste your eBay App ID first', 'error'); return; }
-  localStorage.setItem('ebay_app_id', key);
-  document.getElementById('ebay-key-status').textContent = '✓ Key saved';
-  document.getElementById('ebay-key-status').style.color = '#22c55e';
-  showToast('eBay App ID saved', 'success');
-}
-
-function loadEbayKey() {
-  const key = localStorage.getItem('ebay_app_id');
-  if (key) {
-    document.getElementById('ebay-key').value = key;
-    document.getElementById('ebay-key-status').textContent = '✓ Key loaded';
-    document.getElementById('ebay-key-status').style.color = '#22c55e';
-  }
-}
-
-async function fetchEbaySold(cardName, setName) {
-  const appId = localStorage.getItem('ebay_app_id');
-  if (!appId) {
-    document.getElementById('ebay-notice').style.display = 'block';
-    document.getElementById('ebay-comps-section').style.display = 'none';
-    return;
-  }
-
-  document.getElementById('ebay-notice').style.display = 'none';
-  document.getElementById('ebay-comps-section').style.display = 'block';
-  document.getElementById('ebay-comps-list').textContent = 'Loading...';
-
-  // Build search query — card name + MTG to reduce noise
-  const query = `"${cardName}" MTG magic gathering`;
-  const url = `/.netlify/functions/ebay-search?query=${encodeURIComponent(query)}&appId=${encodeURIComponent(appId)}`;
-
-  try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('eBay function error');
-    const data = await res.json();
-    const items = data.items || [];
-    
-    if (items.length === 0) {
-      document.getElementById('ebay-comps-list').innerHTML = '<span style="color:var(--text-dim)">No recent sold listings found</span>';
-      return;
-    }
-
-    const html = items.slice(0, 5).map(item => {
-      const title = item.title?.[0] || '';
-      const price = parseFloat(item.sellingStatus?.[0]?.convertedCurrentPrice?.[0]?.__value__ || 0);
-      const endTime = item.listingInfo?.[0]?.endTime?.[0] || '';
-      const date = endTime ? new Date(endTime).toLocaleDateString() : '';
-      const url = item.viewItemURL?.[0] || '#';
-      const condition = item.condition?.[0]?.conditionDisplayName?.[0] || '';
-      return `<div style="display:flex; justify-content:space-between; align-items:center; padding: 5px 0; border-bottom: 1px solid rgba(59,130,246,0.1);">
-        <div style="flex:1; min-width:0;">
-          <a href="${url}" target="_blank" style="color:var(--text-muted); font-size:12px; text-decoration:none; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${title}">${title.substring(0, 55)}${title.length > 55 ? '…' : ''}</a>
-          <span style="font-size:11px; color:var(--text-dim)">${condition} ${date ? '· ' + date : ''}</span>
-        </div>
-        <div style="font-weight:700; color:#3b82f6; margin-left:12px; white-space:nowrap;">$${price.toFixed(2)}</div>
-      </div>`;
-    }).join('');
-
-    // Calculate average
-    const prices = items.slice(0, 5).map(i => parseFloat(i.sellingStatus?.[0]?.convertedCurrentPrice?.[0]?.__value__ || 0)).filter(p => p > 0);
-    const avg = prices.length ? (prices.reduce((a,b) => a+b, 0) / prices.length) : 0;
-    const avgHtml = avg > 0 ? `<div style="text-align:right; font-size:12px; color:#3b82f6; margin-top:6px; font-weight:700;">Avg sold: $${avg.toFixed(2)}</div>` : '';
-
-    document.getElementById('ebay-comps-list').innerHTML = html + avgHtml;
-
-  } catch(e) {
-    document.getElementById('ebay-comps-list').innerHTML = '<span style="color:var(--text-dim)">Could not load eBay data</span>';
-  }
+// ===== EBAY LINK =====
+function updateEbayLink(cardName) {
+  const query = encodeURIComponent(`"${cardName}" mtg magic`);
+  const url = `https://www.ebay.com/sch/i.html?_nkw=${query}&LH_Complete=1&LH_Sold=1&_sop=13`;
+  const link = document.getElementById('ebay-sold-link');
+  if (link) link.href = url;
 }
 
 
@@ -1625,7 +1537,6 @@ dropZone.addEventListener('drop', e => {
 });
 
 // ===== INIT =====
-loadEbayKey();
 </script>
 </body>
 </html>
