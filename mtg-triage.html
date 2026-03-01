@@ -1216,10 +1216,15 @@ async function showCard(idx) {
   document.getElementById('price-foil').textContent = usdFoil ? `$${usdFoil.toFixed(2)}` : (usdEtched ? `$${usdEtched.toFixed(2)} (etched)` : '—');
   document.getElementById('price-foil').className = 'value' + (!usdFoil && !usdEtched ? ' na' : '');
 
-  if (foilMissing) {
+  if (card._foilMissing || (!activePrice && !foilMissing)) {
+    const noPrice = !activePrice && !foilMissing;
     document.getElementById('price-suggested').textContent = '⚠ Manual Check';
     document.getElementById('price-suggested').style.color = '#f97316';
     document.getElementById('price-suggested').style.fontSize = '14px';
+    if (noPrice) {
+      document.getElementById('suggestion-banner').className = 'suggestion ebay';
+      document.getElementById('suggestion-text').textContent = '💡 Suggested: Manual Check — no price data found, look up before deciding';
+    }
   } else {
     document.getElementById('price-suggested').textContent = activePrice ? `$${activePrice.toFixed(2)}` : '—';
     document.getElementById('price-suggested').style.color = '';
@@ -1332,7 +1337,15 @@ function updateEbayLink(cardName) {
 
 function updateConditionPrice() {
   const card = allCards[currentIndex];
-  if (!card || card._basePrice == null) return;
+  if (!card || card._basePrice == null) {
+    // No price data at all
+    document.getElementById('price-suggested').textContent = '⚠ Manual Check';
+    document.getElementById('price-suggested').style.color = '#f97316';
+    document.getElementById('price-suggested').style.fontSize = '14px';
+    document.getElementById('suggestion-banner').className = 'suggestion ebay';
+    document.getElementById('suggestion-text').textContent = '💡 Suggested: Manual Check — no price data found, look up before deciding';
+    return;
+  }
 
   const condition = document.getElementById('card-condition').value;
   const multipliers = { NM: 1.0, LP: 0.78, MP: 0.55, HP: 0.28, DMG: 0.10 };
