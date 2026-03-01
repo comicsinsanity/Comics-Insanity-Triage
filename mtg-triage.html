@@ -863,7 +863,7 @@
 
         <div class="card-controls">
           <label>Condition:</label>
-          <select class="condition-select" id="card-condition">
+          <select class="condition-select" id="card-condition" onchange="updateConditionPrice()">
             <option value="NM">NM — Near Mint</option>
             <option value="LP">LP — Lightly Played</option>
             <option value="MP">MP — Moderately Played</option>
@@ -1282,10 +1282,15 @@ async function showCard(idx) {
 
   // Store price for later
   card._price = activePrice;
+  card._basePrice = activePrice; // Store NM base price for condition adjustments
+  card._foilMissing = foilMissing;
   card._data = data;
 
   // Update eBay sold link for this card
   updateEbayLink(card.name);
+
+  // Apply condition multiplier to initial display
+  updateConditionPrice();
 
   // Background prefetch next batch while user is triaging current card
   prefetchBatch(currentIndex + 1, 75);
@@ -1323,6 +1328,50 @@ function updateEbayLink(cardName) {
   const url = `https://www.ebay.com/sch/i.html?_nkw=${query}&LH_Complete=1&LH_Sold=1&_sop=13`;
   const link = document.getElementById('ebay-sold-link');
   if (link) link.href = url;
+}
+
+function updateConditionPrice() {
+  const card = allCards[currentIndex];
+  if (!card || card._basePrice == null) return;
+
+  const condition = document.getElementById('card-condition').value;
+  const multipliers = { NM: 1.0, LP: 0.78, MP: 0.55, HP: 0.28, DMG: 0.10 };
+  const multiplier = multipliers[condition] || 1.0;
+  const adjustedPrice = card._basePrice * multiplier;
+
+  // Update suggested price display
+  const suggestedEl = document.getElementById('price-suggested');
+  if (card._foilMissing) {
+    suggestedEl.textContent = '⚠ Manual Check';
+    suggestedEl.style.color = '#f97316';
+    suggestedEl.style.fontSize = '14px';
+  } else {
+    suggestedEl.textContent = adjustedPrice ? `$${adjustedPrice.toFixed(2)}` : '—';
+    suggestedEl.style.color = '';
+    suggestedEl.style.fontSize = '';
+  }
+
+  // Update card's current price
+  card._price = adjustedPrice;
+
+  // Recalculate bucket
+  const thresh = {
+    grade: parseFloat(document.getElementById('thresh-grade').value) || 50,
+    ebay: parseFloat(document.getElementById('thresh-ebay').value) || 15,
+    tcg: parseFloat(document.getElementById('thresh-tcg').value) || 1,
+  };
+
+  let bucket = 'bulk', bucketLabel = 'Bulk — accumulate for shows/lots';
+  if (card._foilMissing) { bucket = 'ebay'; bucketLabel = 'Manual Check — foil price unavailable, look up before deciding'; }
+  else if (condition === 'DMG') { bucket = 'damaged'; bucketLabel = 'Damaged — not worth selling'; }
+  else if (adjustedPrice >= thresh.grade) { bucket = 'grade'; bucketLabel = `Grade — adjusted value $${adjustedPrice.toFixed(2)} (${condition}), graded could be significantly higher`; }
+  else if (adjustedPrice >= thresh.ebay) { bucket = 'ebay'; bucketLabel = `List on eBay — $${adjustedPrice.toFixed(2)} (${condition}) is worth individual listing effort`; }
+  else if (adjustedPrice >= thresh.tcg) { bucket = 'tcg'; bucketLabel = `TCGplayer — $${adjustedPrice.toFixed(2)} (${condition}), bag it and shelf it`; }
+  else { bucketLabel = `Bulk — $${adjustedPrice.toFixed(2)} (${condition}), accumulate for shows/lots`; }
+
+  const bannerEl = document.getElementById('suggestion-banner');
+  bannerEl.className = 'suggestion ' + bucket;
+  document.getElementById('suggestion-text').textContent = '💡 Suggested: ' + bucketLabel;
 }
 
 
