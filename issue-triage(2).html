@@ -820,27 +820,11 @@
       </p>
     </div>
 
-    <div class="settings-card" style="margin-top: 12px;">
-      <h3>GoCollect API</h3>
+    <div class="settings-card" style="margin-top: 12px; background: rgba(201,168,76,0.04); border-color: rgba(201,168,76,0.2);">
+      <h3 style="color: rgba(201,168,76,0.9)">📊 Pricing</h3>
       <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
-        Paste your GoCollect API key to enable live pricing and key issue detection.
-        Get your key at <span style="color: var(--accent)">gocollect.com/user/api-tokens</span>
+        Pricing uses your ComicBase cost data. Use the link buttons on each comic to check GoCollect and eBay sold comps directly.
       </p>
-      <input type="text" class="api-input" id="gocollect-key" placeholder="Paste GoCollect API key here" 
-        oninput="handleApiKeyInput()">
-      <div id="api-status" style="font-size:12px; margin-top:8px; color: var(--text-muted); letter-spacing:1px; font-weight:700;">
-        ⚡ API key not set — pricing will use ComicBase cost data only
-      </div>
-    </div>
-
-    <div class="settings-card" style="margin-top: 12px; background: rgba(59,130,246,0.04); border-color: rgba(59,130,246,0.2);">
-      <h3 style="color: rgba(59,130,246,0.7)">⚡ eBay Sold Comps — Coming Soon</h3>
-      <p style="font-size: 13px; color: rgba(59,130,246,0.5); line-height: 1.6;">
-        Once your eBay Developer account is approved, paste your API key here to enable real sold listing data.
-      </p>
-      <input type="text" placeholder="eBay API Key (optional)" 
-        style="width:100%; background: var(--surface2); border: 1px solid rgba(59,130,246,0.2); border-radius: 6px; padding: 8px 12px; color: var(--text-muted); font-family: Rajdhani, sans-serif; font-size: 14px; margin-top:8px;"
-        id="ebay-key">
     </div>
 
     <br>
@@ -899,15 +883,24 @@
           </div>
           <div class="price-box">
             <div class="label">GoCollect</div>
-            <div class="value" id="price-gc">—</div>
+            <div class="value na" id="price-gc">—</div>
           </div>
           <div class="price-box">
             <div class="label">Suggested</div>
             <div class="value high" id="price-suggested">—</div>
           </div>
-          <div class="gocollect-notice" id="gc-notice">
-            ⚡ GoCollect: add API key for live pricing &amp; key issue detection
-          </div>
+        </div>
+
+        <!-- External lookup buttons -->
+        <div style="display:flex; gap:8px; margin: 8px 0;">
+          <a id="ebay-sold-link" href="#" target="_blank"
+            style="flex:1; display:block; text-align:center; background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.3); border-radius: 8px; padding: 9px; color: #3b82f6; font-size: 13px; font-weight: 700; text-decoration: none;">
+            🛒 eBay Sold
+          </a>
+          <a id="gocollect-link" href="#" target="_blank"
+            style="flex:1; display:block; text-align:center; background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3); border-radius: 8px; padding: 9px; color: var(--accent); font-size: 13px; font-weight: 700; text-decoration: none;">
+            📊 GoCollect
+          </a>
         </div>
 
         <div class="key-issue-banner" id="key-banner">
@@ -1265,19 +1258,6 @@ async function showComic(idx) {
   document.getElementById('price-gc').className = 'value' + (!gcPrice ? ' na' : (gcPrice >= 5 ? ' high' : ''));
   document.getElementById('price-suggested').textContent = activePrice ? `$${activePrice.toFixed(2)}` : '—';
 
-  // GoCollect notice
-  const gcNotice = document.getElementById('gc-notice');
-  if (gcApiKey && gcData) {
-    gcNotice.textContent = '✓ GoCollect data loaded';
-    gcNotice.className = 'gocollect-notice connected';
-  } else if (gcApiKey) {
-    gcNotice.textContent = '⚡ GoCollect: could not find this issue';
-    gcNotice.className = 'gocollect-notice';
-  } else {
-    gcNotice.textContent = '⚡ GoCollect: add API key for live pricing & key issue detection';
-    gcNotice.className = 'gocollect-notice';
-  }
-
   // Key issue detection
   const keyBanner = document.getElementById('key-banner');
   const isKey = gcData?.is_key || isKnownKey(comic);
@@ -1295,6 +1275,9 @@ async function showComic(idx) {
 
   comic._price = activePrice;
   comic._isKey = isKey;
+
+  // Update external lookup links
+  updateExternalLinks(comic);
 
   updateSuggestion();
 
@@ -1315,6 +1298,18 @@ function isKnownKey(comic) {
 
 function getKeyNotes(comic) {
   return comic.description || comic.notes || 'Key issue detected';
+}
+
+function updateExternalLinks(comic) {
+  const ebayQuery = encodeURIComponent(`"${comic.title}" #${comic.itemNum} comic`);
+  const ebayUrl = `https://www.ebay.com/sch/i.html?_nkw=${ebayQuery}&LH_Complete=1&LH_Sold=1&_sop=13`;
+  const gcQuery = encodeURIComponent(`${comic.title} ${comic.itemNum}`);
+  const gcUrl = `https://gocollect.com/search?q=${gcQuery}&type=comic`;
+
+  const ebayLink = document.getElementById('ebay-sold-link');
+  const gcLink = document.getElementById('gocollect-link');
+  if (ebayLink) ebayLink.href = ebayUrl;
+  if (gcLink) gcLink.href = gcUrl;
 }
 
 function updateSuggestion() {
