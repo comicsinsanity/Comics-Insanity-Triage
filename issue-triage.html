@@ -24,734 +24,136 @@
     --text-muted: #6b7a99;
     --text-dim: #3d4a6b;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 16px;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(201,168,76,0.08) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(168,85,247,0.05) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(10,12,16,0.92);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .logo {
-    font-family: 'Cinzel', serif;
-    font-size: 20px;
-    font-weight: 900;
-    letter-spacing: 2px;
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .logo span {
-    font-weight: 700;
-    opacity: 0.6;
-    font-size: 13px;
-    letter-spacing: 3px;
-    display: block;
-    margin-top: -4px;
-  }
-
-  .logo-sub {
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: var(--text-dim);
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 600;
-    text-transform: uppercase;
-    margin-top: 2px;
-    -webkit-text-fill-color: var(--text-dim);
-  }
-
-  .session-stats {
-    display: flex;
-    gap: 12px;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    color: var(--text-muted);
-  }
-
+  body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 16px; min-height: 100vh; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(201,168,76,0.08) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 80% 80%, rgba(168,85,247,0.05) 0%, transparent 50%); pointer-events: none; z-index: 0; }
+  header { position: sticky; top: 0; z-index: 100; background: rgba(10,12,16,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-family: 'Cinzel', serif; font-size: 20px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .logo span { font-weight: 700; opacity: 0.6; font-size: 13px; letter-spacing: 3px; display: block; margin-top: -4px; }
+  .logo-sub { font-size: 10px; letter-spacing: 2px; color: var(--text-dim); font-family: 'Rajdhani', sans-serif; font-weight: 600; text-transform: uppercase; margin-top: 2px; -webkit-text-fill-color: var(--text-dim); }
+  .session-stats { display: flex; gap: 12px; font-size: 12px; font-weight: 600; letter-spacing: 1px; color: var(--text-muted); }
   .session-stats b { color: var(--accent); }
-
-  main {
-    position: relative;
-    z-index: 1;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 16px;
-  }
-
-  .tabs {
-    display: flex;
-    gap: 4px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 4px;
-    margin-bottom: 20px;
-  }
-
-  .tab {
-    flex: 1;
-    padding: 8px 4px;
-    border: none;
-    background: transparent;
-    color: var(--text-muted);
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    cursor: pointer;
-    border-radius: 7px;
-    transition: all 0.2s;
-  }
-
-  .tab.active {
-    background: var(--surface2);
-    color: var(--accent);
-    border: 1px solid var(--border);
-  }
-
+  main { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 16px; }
+  .tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px; margin-bottom: 20px; }
+  .tab { flex: 1; padding: 8px 4px; border: none; background: transparent; color: var(--text-muted); font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border-radius: 7px; transition: all 0.2s; }
+  .tab.active { background: var(--surface2); color: var(--accent); border: 1px solid var(--border); }
   .panel { display: none; }
   .panel.active { display: block; }
-
-  .import-zone {
-    border: 2px dashed var(--border);
-    border-radius: 12px;
-    padding: 48px 24px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s;
-    background: var(--surface);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .import-zone::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse at center, rgba(201,168,76,0.03) 0%, transparent 70%);
-  }
-
-  .import-zone:hover, .import-zone.drag-over {
-    border-color: var(--accent);
-    background: rgba(201,168,76,0.04);
-  }
-
-  .-icon { font-size: 48px; margin-bottom: 16px; display: block; }
-
-  .import-zone h3 {
-    font-family: 'Cinzel', serif;
-    font-size: 18px;
-    color: var(--accent);
-    margin-bottom: 8px;
-  }
-
+  .import-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 48px 24px; text-align: center; cursor: pointer; transition: all 0.3s; background: var(--surface); position: relative; overflow: hidden; }
+  .import-zone::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(201,168,76,0.03) 0%, transparent 70%); }
+  .import-zone:hover, .import-zone.drag-over { border-color: var(--accent); background: rgba(201,168,76,0.04); }
+  .import-icon { font-size: 48px; margin-bottom: 16px; display: block; }
+  .import-zone h3 { font-family: 'Cinzel', serif; font-size: 18px; color: var(--accent); margin-bottom: 8px; }
   .import-zone p { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
   .import-zone input[type=file] { display: none; }
-
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 24px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--surface2);
-    color: var(--text);
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
   .btn:hover { border-color: var(--accent); color: var(--accent); }
-
   .btn-primary { background: var(--accent); border-color: var(--accent); color: #0a0c10; }
   .btn-primary:hover { background: var(--accent2); border-color: var(--accent2); color: #0a0c10; }
   .btn-sm { padding: 6px 14px; font-size: 12px; }
-
-  .settings-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-    margin-top: 20px;
-  }
-
-  .settings-card h3 {
-    font-family: 'Cinzel', serif;
-    font-size: 14px;
-    color: var(--accent);
-    letter-spacing: 2px;
-    margin-bottom: 16px;
-    text-transform: uppercase;
-  }
-
-  .threshold-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-
+  .settings-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-top: 20px; }
+  .settings-card h3 { font-family: 'Cinzel', serif; font-size: 14px; color: var(--accent); letter-spacing: 2px; margin-bottom: 16px; text-transform: uppercase; }
+  .threshold-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .threshold-item { display: flex; flex-direction: column; gap: 6px; }
-
-  .threshold-item label {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-
-  .threshold-item input {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 8px 12px;
-    color: var(--text);
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    width: 100%;
-    transition: border-color 0.2s;
-  }
-
+  .threshold-item label { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+  .threshold-item input { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 600; width: 100%; transition: border-color 0.2s; }
   .threshold-item input:focus { outline: none; border-color: var(--accent); }
-
-  /* API Key section */
-  .api-input {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 8px 12px;
-    color: var(--text);
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 14px;
-    margin-top: 8px;
-    transition: border-color 0.2s;
-  }
-
-  .api-input:focus { outline: none; border-color: var(--accent); }
-  .api-input.connected { border-color: var(--dollarbox); }
-
-  /* Triage */
-  .triage-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-  }
-
-  .progress-bar {
-    flex: 1;
-    height: 4px;
-    background: var(--surface2);
-    border-radius: 2px;
-    overflow: hidden;
-    margin: 0 16px;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    border-radius: 2px;
-    transition: width 0.4s ease;
-  }
-
-  .progress-text {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text-muted);
-    white-space: nowrap;
-    letter-spacing: 1px;
-  }
-
-  .card-display {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-    margin-bottom: 16px;
-    position: relative;
-  }
-
-  .card-display::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--accent), transparent);
-  }
-
-  .card-main {
-    padding: 20px;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 16px;
-    align-items: start;
-  }
-
-  .card-name {
-    font-family: 'Cinzel', serif;
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text);
-    line-height: 1.2;
-    margin-bottom: 2px;
-  }
-
-  .card-issue {
-    font-size: 15px;
-    color: var(--accent);
-    font-weight: 700;
-    margin-bottom: 4px;
-  }
-
-  .card-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 8px;
-  }
-
-  .meta-tag {
-    padding: 3px 10px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-  }
-
+  .triage-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .progress-bar { flex: 1; height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; margin: 0 16px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; transition: width 0.4s ease; }
+  .progress-text { font-size: 12px; font-weight: 700; color: var(--text-muted); white-space: nowrap; letter-spacing: 1px; }
+  .card-display { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 16px; position: relative; }
+  .card-display::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), transparent); }
+  .card-main { padding: 20px; display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start; }
+  .card-name { font-family: 'Cinzel', serif; font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.2; margin-bottom: 2px; }
+  .card-issue { font-size: 15px; color: var(--accent); font-weight: 700; margin-bottom: 4px; }
+  .card-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .meta-tag { padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted); }
   .meta-tag.key { border-color: var(--accent); color: var(--accent); background: rgba(201,168,76,0.08); }
   .meta-tag.first-print { border-color: #c0c0c0; color: #c0c0c0; }
-  .meta-tag.high-grade { border-color: var(--grade); color: var(--grade); }
-
-  .cover-placeholder {
-    width: 80px;
-    height: 120px;
-    border-radius: 4px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-    flex-shrink: 0;
-  }
-
-  .cover-img {
-    width: 80px;
-    height: 120px;
-    border-radius: 4px;
-    object-fit: cover;
-    border: 1px solid var(--border);
-    flex-shrink: 0;
-  }
-
-  .price-section {
-    padding: 0 20px 16px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-  }
-
-  .price-box {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px;
-    text-align: center;
-  }
-
-  .price-box .label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 6px;
-  }
-
+  .cover-placeholder { width: 80px; height: 120px; border-radius: 4px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
+  .price-section { padding: 0 20px 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .price-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; text-align: center; }
+  .price-box .label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
   .price-box .value { font-size: 20px; font-weight: 700; color: var(--text); }
   .price-box .value.high { color: var(--accent); }
   .price-box .value.na { color: var(--text-dim); font-size: 14px; }
-
-  .gocollect-notice {
-    grid-column: 1 / -1;
-    background: rgba(201,168,76,0.05);
-    border: 1px solid rgba(201,168,76,0.2);
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 12px;
-    color: rgba(201,168,76,0.6);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    letter-spacing: 0.5px;
-  }
-
-  .gocollect-notice.connected {
-    background: rgba(34,197,94,0.05);
-    border-color: rgba(34,197,94,0.2);
-    color: rgba(34,197,94,0.7);
-  }
-
-  /* Key issue banner */
-  .key-issue-banner {
-    margin: 0 20px 12px;
-    padding: 10px 14px;
-    background: rgba(201,168,76,0.08);
-    border: 1px solid rgba(201,168,76,0.3);
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    color: var(--accent);
-    display: none;
-  }
-
-  .suggestion {
-    margin: 0 20px 20px;
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
+  .key-issue-banner { margin: 0 20px 12px; padding: 10px 14px; background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.3); border-radius: 8px; font-size: 12px; font-weight: 700; letter-spacing: 1px; color: var(--accent); display: none; }
+  .suggestion { margin: 0 20px 20px; padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
   .suggestion.grade { background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.3); color: var(--grade); }
   .suggestion.show { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); color: var(--show); }
   .suggestion.dollarbox { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: var(--dollarbox); }
   .suggestion.trash { background: rgba(107,114,128,0.1); border: 1px solid rgba(107,114,128,0.3); color: var(--trash); }
-
-  .card-controls {
-    padding: 0 20px 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  .card-controls label {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-
-  .condition-select {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 6px 10px;
-    color: var(--text);
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
+  .card-controls { padding: 0 20px 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .card-controls label { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); }
+  .condition-select { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
   .condition-select:focus { outline: none; border-color: var(--accent); }
-
-  .decision-buttons {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-
-  @media (max-width: 400px) {
-    .decision-buttons { grid-template-columns: repeat(2, 1fr); }
-  }
-
-  .btn-decision {
-    padding: 14px 8px;
-    border-radius: 10px;
-    border: 2px solid transparent;
-    cursor: pointer;
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    transition: all 0.15s;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-  }
-
+  .decision-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+  @media (max-width: 400px) { .decision-buttons { grid-template-columns: repeat(2, 1fr); } }
+  .btn-decision { padding: 14px 8px; border-radius: 10px; border: 2px solid transparent; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; transition: all 0.15s; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px; }
   .btn-decision .icon { font-size: 20px; }
-
   .btn-grade { background: rgba(168,85,247,0.1); border-color: rgba(168,85,247,0.3); color: var(--grade); }
   .btn-grade:hover, .btn-grade.selected { background: rgba(168,85,247,0.25); border-color: var(--grade); }
-
   .btn-show { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); color: var(--show); }
   .btn-show:hover, .btn-show.selected { background: rgba(59,130,246,0.25); border-color: var(--show); }
-
   .btn-dollarbox { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.3); color: var(--dollarbox); }
   .btn-dollarbox:hover, .btn-dollarbox.selected { background: rgba(34,197,94,0.25); border-color: var(--dollarbox); }
-
   .btn-trash { background: rgba(107,114,128,0.1); border-color: rgba(107,114,128,0.3); color: var(--trash); }
   .btn-trash:hover, .btn-trash.selected { background: rgba(107,114,128,0.25); border-color: var(--trash); }
-
-  .nav-buttons {
-    display: flex;
-    gap: 8px;
-    justify-content: space-between;
-  }
-
-  /* Results */
-  .results-summary {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-
-  @media (min-width: 600px) {
-    .results-summary { grid-template-columns: repeat(4, 1fr); }
-  }
-
-  .result-bucket {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color 0.2s;
-  }
-
+  .nav-buttons { display: flex; gap: 8px; justify-content: space-between; }
+  .results-summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+  @media (min-width: 600px) { .results-summary { grid-template-columns: repeat(4, 1fr); } }
+  .result-bucket { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; cursor: pointer; transition: border-color 0.2s; }
   .result-bucket:hover { border-color: var(--accent); }
   .result-bucket .bucket-icon { font-size: 24px; margin-bottom: 8px; }
   .result-bucket .bucket-name { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
   .result-bucket .bucket-count { font-size: 28px; font-weight: 700; }
   .result-bucket .bucket-value { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-
   .result-bucket.grade .bucket-count { color: var(--grade); }
   .result-bucket.show .bucket-count { color: var(--show); }
   .result-bucket.dollarbox .bucket-count { color: var(--dollarbox); }
   .result-bucket.trash .bucket-count { color: var(--trash); }
-
-  .result-list {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
-  .result-list-header {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .result-list-header h3 {
-    font-family: 'Cinzel', serif;
-    font-size: 13px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-
+  .result-list { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .result-list-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .result-list-header h3 { font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; }
   .filter-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
-
-  .filter-tab {
-    padding: 4px 10px;
-    border-radius: 5px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text-muted);
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
+  .filter-tab { padding: 4px 10px; border-radius: 5px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.15s; }
   .filter-tab.active, .filter-tab:hover { background: var(--surface2); color: var(--text); }
   .filter-tab.grade.active { color: var(--grade); border-color: var(--grade); }
   .filter-tab.show.active { color: var(--show); border-color: var(--show); }
   .filter-tab.dollarbox.active { color: var(--dollarbox); border-color: var(--dollarbox); }
   .filter-tab.trash.active { color: var(--trash); border-color: var(--trash); }
-
-  .result-item {
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    transition: background 0.15s;
-  }
-
+  .result-item { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; transition: background 0.15s; }
   .result-item:last-child { border-bottom: none; }
   .result-item:hover { background: var(--surface2); }
-
   .result-item-info { flex: 1; min-width: 0; }
   .result-item-name { font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .result-item-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
   .result-item-price { font-size: 16px; font-weight: 700; text-align: right; white-space: nowrap; }
-
-  .bucket-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
+  .bucket-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
   .bucket-dot.grade { background: var(--grade); }
   .bucket-dot.show { background: var(--show); }
   .bucket-dot.dollarbox { background: var(--dollarbox); }
   .bucket-dot.trash { background: var(--trash); }
-
-  .key-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--accent);
-    flex-shrink: 0;
-  }
-
-  .export-bar {
-    display: flex;
-    gap: 8px;
-    margin-top: 16px;
-    flex-wrap: wrap;
-  }
-
-  .result-list-scroll {
-    max-height: 400px;
-    overflow-y: auto;
-  }
-
+  .key-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .export-bar { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+  .result-list-scroll { max-height: 400px; overflow-y: auto; }
   .result-list-scroll::-webkit-scrollbar { width: 4px; }
   .result-list-scroll::-webkit-scrollbar-track { background: transparent; }
   .result-list-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--text-muted);
-  }
-
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
   .empty-state .icon { font-size: 48px; margin-bottom: 16px; display: block; }
   .empty-state h3 { font-family: 'Cinzel', serif; color: var(--text-dim); font-size: 16px; margin-bottom: 8px; }
   .empty-state p { font-size: 14px; line-height: 1.6; }
-
-  .loading-bar {
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    margin-bottom: 16px;
-    border-radius: 1px;
-  }
-
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  }
-
-  .loading-text {
-    text-align: center;
-    color: var(--text-muted);
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    padding: 20px;
-  }
-
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 20px;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    z-index: 1000;
-    transition: transform 0.3s ease;
-    white-space: nowrap;
-  }
-
+  .loading-bar { height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); background-size: 200% 100%; animation: shimmer 1.5s infinite; margin-bottom: 16px; border-radius: 1px; }
+  @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+  .loading-text { text-align: center; color: var(--text-muted); font-size: 13px; font-weight: 600; letter-spacing: 1px; padding: 20px; }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 20px; font-size: 13px; font-weight: 700; letter-spacing: 1px; z-index: 1000; transition: transform 0.3s ease; white-space: nowrap; }
   .toast.show { transform: translateX(-50%) translateY(0); }
   .toast.success { border-color: var(--dollarbox); color: var(--dollarbox); }
   .toast.error { border-color: #ef4444; color: #ef4444; }
-
-  /* Notes field */
-  .notes-row {
-    padding: 0 20px 16px;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-  }
-
-  .notes-input {
-    flex: 1;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 7px 12px;
-    color: var(--text);
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 13px;
-    transition: border-color 0.2s;
-  }
-
+  .notes-row { padding: 0 20px 16px; display: flex; gap: 10px; align-items: center; }
+  .notes-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 7px 12px; color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 13px; transition: border-color 0.2s; }
   .notes-input:focus { outline: none; border-color: var(--accent); }
   .notes-input::placeholder { color: var(--text-dim); }
 </style>
@@ -808,37 +210,27 @@
         </div>
         <div class="threshold-item">
           <label style="color: var(--trash)">Trash = condition</label>
-          <input type="text" value="Poor / Incomplete" disabled style="opacity:0.4; cursor:not-allowed;">
+          <input type="text" value="1.5 or below" disabled style="opacity:0.4;cursor:not-allowed;">
         </div>
       </div>
       <br>
-      <p style="font-size: 12px; color: var(--text-muted); line-height: 1.6;">
-        Logic: <span style="color: var(--grade)">Grade</span> ≥ $100 &nbsp;|&nbsp;
-        <span style="color: var(--show)">Show</span> ≥ $5 (eBay after if unsold) &nbsp;|&nbsp;
-        <span style="color: var(--dollarbox)">$1 Box</span> under $5 &nbsp;|&nbsp;
-        <span style="color: var(--trash)">Trash</span> condition-based
+      <p style="font-size:12px;color:var(--text-muted);line-height:1.6;">
+        Logic: <span style="color:var(--grade)">Grade</span> ≥ $100 at 8.0+ &nbsp;|&nbsp;
+        <span style="color:var(--show)">Show</span> ≥ $5 &nbsp;|&nbsp;
+        <span style="color:var(--dollarbox)">$1 Box</span> under $5 &nbsp;|&nbsp;
+        <span style="color:var(--trash)">Trash</span> grade 1.5 or below
       </p>
     </div>
 
-    <div class="settings-card" style="margin-top: 12px; background: rgba(201,168,76,0.04); border-color: rgba(201,168,76,0.2);">
-      <h3 style="color: rgba(201,168,76,0.9)">📊 Pricing</h3>
-      <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
-        Pricing uses your ComicBase cost data. Use the link buttons on each comic to check GoCollect and eBay sold comps directly.
+    <div class="settings-card" style="margin-top:12px;background:rgba(201,168,76,0.04);border-color:rgba(201,168,76,0.2);">
+      <h3 style="color:rgba(201,168,76,0.9)">📊 Pricing</h3>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">
+        Pricing uses your ComicBase cost data adjusted for grade. Use the link buttons on each comic to check GoCollect and eBay sold comps directly.
       </p>
     </div>
-
-    <div class="settings-card">
-  <h3>GoCollect API (Optional)</h3>
-  <input type="password" id="gocollect-key" class="api-input" placeholder="Enter API Key..." oninput="handleApiKeyInput()">
-  <p id="api-status" style="font-size: 11px; margin-top: 5px; color: var(--text-muted);">
-    ⚡ API key not set — pricing will use ComicBase cost data only
-  </p>
-</div>
 
     <br>
-    <button class="btn btn-primary" onclick="loadDemo()" style="margin-right: 8px;">
-      📖 Load Demo Comics
-    </button>
+    <button class="btn btn-primary" onclick="loadDemo()" style="margin-right:8px;">📖 Load Demo Comics</button>
     <button class="btn" onclick="clearAll()">Clear</button>
   </div>
 
@@ -861,7 +253,7 @@
           <div>
             <div class="card-name" id="card-name">—</div>
             <div class="card-issue" id="card-issue">—</div>
-            <div style="font-size: 13px; color: var(--text-muted);" id="card-desc"></div>
+            <div style="font-size:13px;color:var(--text-muted);" id="card-desc"></div>
             <div class="card-meta" id="card-meta"></div>
           </div>
           <div id="card-image-container">
@@ -870,35 +262,35 @@
         </div>
 
         <div class="card-controls">
-          <label>Condition:</label>
+          <label>Grade:</label>
           <select class="condition-select" id="card-condition" onchange="updateConditionPrice()">
-  <option value="10.0">10.0 — Gem Mint</option>
-  <option value="9.8">9.8 — Near Mint/Mint</option>
-  <option value="9.6">9.6 — Near Mint+</option>
-  <option value="9.4" selected>9.4 — Near Mint</option>
-  <option value="9.2">9.2 — Near Mint-</option>
-  <option value="9.0">9.0 — Very Fine/Near Mint</option>
-  <option value="8.5">8.5 — Very Fine+</option>
-  <option value="8.0">8.0 — Very Fine</option>
-  <option value="7.5">7.5 — Very Fine-</option>
-  <option value="7.0">7.0 — Fine/Very Fine</option>
-  <option value="6.5">6.5 — Fine+</option>
-  <option value="6.0">6.0 — Fine</option>
-  <option value="5.5">5.5 — Fine-</option>
-  <option value="5.0">5.0 — Very Good/Fine</option>
-  <option value="4.5">4.5 — Very Good+</option>
-  <option value="4.0">4.0 — Very Good</option>
-  <option value="3.5">3.5 — Very Good-</option>
-  <option value="3.0">3.0 — Good/Very Good</option>
-  <option value="2.5">2.5 — Good+</option>
-  <option value="2.0">2.0 — Good</option>
-  <option value="1.8">1.8 — Good-</option>
-  <option value="1.5">1.5 — Fair/Good</option>
-  <option value="1.0">1.0 — Fair</option>
-  <option value="0.5">0.5 — Poor</option>
-</select>
+            <option value="10.0">10.0 — Gem Mint</option>
+            <option value="9.8">9.8 — Near Mint/Mint</option>
+            <option value="9.6">9.6 — Near Mint+</option>
+            <option value="9.4" selected>9.4 — Near Mint</option>
+            <option value="9.2">9.2 — Near Mint-</option>
+            <option value="9.0">9.0 — Very Fine/Near Mint</option>
+            <option value="8.5">8.5 — Very Fine+</option>
+            <option value="8.0">8.0 — Very Fine</option>
+            <option value="7.5">7.5 — Very Fine-</option>
+            <option value="7.0">7.0 — Fine/Very Fine</option>
+            <option value="6.5">6.5 — Fine+</option>
+            <option value="6.0">6.0 — Fine</option>
+            <option value="5.5">5.5 — Fine-</option>
+            <option value="5.0">5.0 — Very Good/Fine</option>
+            <option value="4.5">4.5 — Very Good+</option>
+            <option value="4.0">4.0 — Very Good</option>
+            <option value="3.5">3.5 — Very Good-</option>
+            <option value="3.0">3.0 — Good/Very Good</option>
+            <option value="2.5">2.5 — Good+</option>
+            <option value="2.0">2.0 — Good</option>
+            <option value="1.8">1.8 — Good-</option>
+            <option value="1.5">1.5 — Fair/Good</option>
+            <option value="1.0">1.0 — Fair</option>
+            <option value="0.5">0.5 — Poor</option>
+          </select>
           <label style="margin-left:8px;">Qty:</label>
-          <span id="card-qty" style="font-size:15px; font-weight:700; color:var(--accent);">1</span>
+          <span id="card-qty" style="font-size:15px;font-weight:700;color:var(--accent);">1</span>
         </div>
 
         <div class="price-section">
@@ -916,21 +308,18 @@
           </div>
         </div>
 
-        <!-- External lookup buttons -->
-        <div style="display:flex; gap:8px; margin: 8px 0;">
+        <div style="display:flex;gap:8px;margin:0 20px 12px;">
           <a id="ebay-sold-link" href="#" target="_blank"
-            style="flex:1; display:block; text-align:center; background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.3); border-radius: 8px; padding: 9px; color: #3b82f6; font-size: 13px; font-weight: 700; text-decoration: none;">
+            style="flex:1;display:block;text-align:center;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.3);border-radius:8px;padding:9px;color:#3b82f6;font-size:13px;font-weight:700;text-decoration:none;">
             🛒 eBay Sold
           </a>
           <a id="gocollect-link" href="#" target="_blank"
-            style="flex:1; display:block; text-align:center; background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3); border-radius: 8px; padding: 9px; color: var(--accent); font-size: 13px; font-weight: 700; text-decoration: none;">
+            style="flex:1;display:block;text-align:center;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:9px;color:var(--accent);font-size:13px;font-weight:700;text-decoration:none;">
             📊 GoCollect
           </a>
         </div>
 
-        <div class="key-issue-banner" id="key-banner">
-          ⭐ KEY ISSUE
-        </div>
+        <div class="key-issue-banner" id="key-banner">⭐ KEY ISSUE</div>
 
         <div class="suggestion" id="suggestion-banner">
           <span id="suggestion-text">—</span>
@@ -943,18 +332,10 @@
       </div>
 
       <div class="decision-buttons">
-        <button class="btn-decision btn-grade" onclick="decide('grade')">
-          <span class="icon">💎</span>Grade
-        </button>
-        <button class="btn-decision btn-show" onclick="decide('show')">
-          <span class="icon">🏷</span>Show
-        </button>
-        <button class="btn-decision btn-dollarbox" onclick="decide('dollarbox')">
-          <span class="icon">📦</span>$1 Box
-        </button>
-        <button class="btn-decision btn-trash" onclick="decide('trash')">
-          <span class="icon">🗑</span>Trash
-        </button>
+        <button class="btn-decision btn-grade" onclick="decide('grade')"><span class="icon">💎</span>Grade</button>
+        <button class="btn-decision btn-show" onclick="decide('show')"><span class="icon">🏷</span>Show</button>
+        <button class="btn-decision btn-dollarbox" onclick="decide('dollarbox')"><span class="icon">📦</span>$1 Box</button>
+        <button class="btn-decision btn-trash" onclick="decide('trash')"><span class="icon">🗑</span>Trash</button>
       </div>
 
       <div class="nav-buttons">
@@ -1033,42 +414,38 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ===== STATE =====
 let allComics = [];
 let currentIndex = 0;
 let decisions = {};
-let priceCache = {};
 let activeFilter = 'all';
-let gcApiKey = '';
 
-// ===== TAB SWITCHING =====
+const CONDITION_MULTIPLIERS = {
+  '10.0': 1.50, '9.8': 1.25, '9.6': 1.15, '9.4': 1.00,
+  '9.2': 0.95, '9.0': 0.90, '8.5': 0.85, '8.0': 0.75,
+  '7.5': 0.65, '7.0': 0.50, '6.5': 0.40, '6.0': 0.30,
+  '5.5': 0.28, '5.0': 0.25, '4.5': 0.20, '4.0': 0.18,
+  '3.5': 0.15, '3.0': 0.13, '2.5': 0.12, '2.0': 0.10,
+  '1.8': 0.09, '1.5': 0.08, '1.0': 0.06, '0.5': 0.03
+};
+
+const COND_MAP = {
+  'Near Mint': '9.4', 'NM': '9.4', 'NM/M': '9.8',
+  'Very Fine': '8.0', 'VF': '8.0', 'VF/NM': '9.0',
+  'Fine': '6.0', 'FN': '6.0', 'FN/VF': '7.0',
+  'Very Good': '4.0', 'VG': '4.0', 'VG/FN': '5.0',
+  'Good': '2.0', 'GD': '2.0',
+  'Fair': '1.0', 'FR': '1.0',
+  'Poor': '0.5', 'PR': '0.5'
+};
+
 function switchTab(name) {
-  document.querySelectorAll('.tab').forEach((t, i) => {
-    t.classList.toggle('active', ['import','triage','results'][i] === name);
-  });
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', ['import','triage','results'][i] === name));
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById('panel-' + name).classList.add('active');
   if (name === 'triage') initTriage();
   if (name === 'results') renderResults();
 }
 
-// ===== API KEY =====
-function handleApiKeyInput() {
-  gcApiKey = document.getElementById('gocollect-key').value.trim();
-  const status = document.getElementById('api-status');
-  const input = document.getElementById('gocollect-key');
-  if (gcApiKey.length > 10) {
-    status.textContent = '✓ GoCollect API key set — live pricing enabled';
-    status.style.color = 'var(--dollarbox)';
-    input.classList.add('connected');
-  } else {
-    status.textContent = '⚡ API key not set — pricing will use ComicBase cost data only';
-    status.style.color = 'var(--text-muted)';
-    input.classList.remove('connected');
-  }
-}
-
-// ===== CSV PARSING =====
 function handleFileSelect(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -1077,50 +454,37 @@ function handleFileSelect(e) {
   reader.readAsText(file);
 }
 
-
+function parseCSV(text) {
+  const lines = text.split('\n').filter(l => l.trim());
+  if (lines.length < 2) { showToast('CSV appears empty', 'error'); return; }
+  const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim().toLowerCase());
+  const comics = [];
   for (let i = 1; i < lines.length; i++) {
     const row = parseCSVRow(lines[i]);
     if (row.length < 2) continue;
     const obj = {};
     headers.forEach((h, idx) => obj[h] = (row[idx] || '').replace(/"/g, '').trim());
-
     const title = obj['title'] || '';
     const itemNum = obj['item #'] || obj['item#'] || obj['item number'] || '';
-    const condition = obj['condition'] || 'VF';
+    const condition = obj['condition'] || '9.4';
     const qty = parseInt(obj['qty in stock'] || obj['quantity'] || '1') || 1;
     const cost = parseFloat(obj['cost'] || obj['price'] || '0') || 0;
-    const coverPrice = obj['cover price'] || '';
     const printing = obj['printing'] || '';
-    const notes = obj['notes'] || '';
     const gradeNotes = obj['grading notes'] || '';
     const description = obj['item description'] || obj['item title'] || obj['notes'] || '';
-    const diamondCode = obj['diamond order code'] || '';
     const writer = obj['writer'] || '';
     const artist = obj['artist'] || '';
-    const forSale = obj['for sale'] || '';
-
-    if (title && itemNum) {
-      comics.push({
-        title, itemNum, condition, qty, cost,
-        coverPrice, printing, notes, gradeNotes,
-        description, diamondCode, writer, artist, forSale
-      });
-    }
+    if (title && itemNum) comics.push({ title, itemNum, condition, qty, cost, printing, gradeNotes, description, writer, artist });
   }
-
   if (comics.length === 0) { showToast('No comics found in CSV', 'error'); return; }
-
-  allComics = comics;
-  currentIndex = 0;
-  decisions = {};
+  allComics = comics; currentIndex = 0; decisions = {};
   updateStats();
   showToast(`Loaded ${comics.length} comics`, 'success');
   switchTab('triage');
 }
 
 function parseCSVRow(line) {
-  const result = [];
-  let cur = '', inQuote = false;
+  const result = []; let cur = '', inQuote = false;
   for (let c of line) {
     if (c === '"') { inQuote = !inQuote; }
     else if (c === ',' && !inQuote) { result.push(cur); cur = ''; }
@@ -1130,41 +494,32 @@ function parseCSVRow(line) {
   return result;
 }
 
-// ===== DEMO DATA =====
 function loadDemo() {
   allComics = [
-    { title: 'Amazing Spider-Man', itemNum: '300', condition: 'VF', qty: 1, cost: 85, coverPrice: '0.75', printing: '1st', notes: '', gradeNotes: '', description: '1st app Venom (Eddie Brock)', diamondCode: '', writer: 'David Michelinie', artist: 'Todd McFarlane' },
-    { title: 'X-Men', itemNum: '1', condition: 'GD', qty: 1, cost: 0, coverPrice: '0.10', printing: '1st', notes: 'Spine split', gradeNotes: 'Heavy wear', description: '1st app X-Men, Magneto', diamondCode: '', writer: 'Stan Lee', artist: 'Jack Kirby' },
-    { title: 'Batman', itemNum: '251', condition: 'FN', qty: 1, cost: 45, coverPrice: '0.20', printing: '1st', notes: '', gradeNotes: '', description: 'Classic Joker story, Neal Adams cover', diamondCode: '', writer: 'Dennis O\'Neil', artist: 'Neal Adams' },
-    { title: 'New Mutants', itemNum: '98', condition: 'NM', qty: 2, cost: 120, coverPrice: '1.00', printing: '1st', notes: '', gradeNotes: 'Both copies NM', description: '1st app Deadpool, Domino, Gideon', diamondCode: '', writer: 'Rob Liefeld', artist: 'Rob Liefeld' },
-    { title: 'Wolverine', itemNum: '1', condition: 'VF', qty: 1, cost: 55, coverPrice: '0.60', printing: '1st', notes: '', gradeNotes: '', description: 'First Wolverine solo series', diamondCode: '', writer: 'Chris Claremont', artist: 'Frank Miller' },
-    { title: 'Spawn', itemNum: '1', condition: 'NM', qty: 3, cost: 8, coverPrice: '1.95', printing: '1st', notes: 'Newsstand copies', gradeNotes: '', description: '1st app Spawn', diamondCode: '', writer: 'Todd McFarlane', artist: 'Todd McFarlane' },
-    { title: 'Green Lantern', itemNum: '76', condition: 'VG', qty: 1, cost: 30, coverPrice: '0.15', printing: '1st', notes: '', gradeNotes: 'Small water stain back cover', description: 'Classic O\'Neil/Adams run begins', diamondCode: '', writer: 'Dennis O\'Neil', artist: 'Neal Adams' },
-    { title: 'Iron Man', itemNum: '128', condition: 'FN', qty: 1, cost: 4, coverPrice: '0.40', printing: '1st', notes: '', gradeNotes: '', description: 'Demon in a Bottle storyline', diamondCode: '', writer: 'David Michelinie', artist: 'Bob Layton' },
+    { title: 'Amazing Spider-Man', itemNum: '300', condition: '9.0', qty: 1, cost: 85, printing: '1st', gradeNotes: '', description: '1st app Venom (Eddie Brock)', writer: 'David Michelinie', artist: 'Todd McFarlane' },
+    { title: 'X-Men', itemNum: '1', condition: '2.0', qty: 1, cost: 0, printing: '1st', gradeNotes: 'Spine split', description: '1st app X-Men, Magneto', writer: 'Stan Lee', artist: 'Jack Kirby' },
+    { title: 'Batman', itemNum: '251', condition: '6.0', qty: 1, cost: 45, printing: '1st', gradeNotes: '', description: 'Classic Joker story, Neal Adams cover', writer: 'Dennis O\'Neil', artist: 'Neal Adams' },
+    { title: 'New Mutants', itemNum: '98', condition: '9.4', qty: 2, cost: 120, printing: '1st', gradeNotes: 'Both NM', description: '1st app Deadpool, Domino, Gideon', writer: 'Rob Liefeld', artist: 'Rob Liefeld' },
+    { title: 'Wolverine', itemNum: '1', condition: '8.0', qty: 1, cost: 55, printing: '1st', gradeNotes: '', description: 'First Wolverine solo series', writer: 'Chris Claremont', artist: 'Frank Miller' },
+    { title: 'Spawn', itemNum: '1', condition: '9.4', qty: 3, cost: 8, printing: '1st', gradeNotes: 'Newsstand', description: '1st app Spawn', writer: 'Todd McFarlane', artist: 'Todd McFarlane' },
+    { title: 'Green Lantern', itemNum: '76', condition: '4.0', qty: 1, cost: 30, printing: '1st', gradeNotes: 'Water stain back', description: 'Classic O\'Neil/Adams run begins', writer: 'Dennis O\'Neil', artist: 'Neal Adams' },
+    { title: 'Iron Man', itemNum: '128', condition: '6.0', qty: 1, cost: 4, printing: '1st', gradeNotes: '', description: 'Demon in a Bottle storyline', writer: 'David Michelinie', artist: 'Bob Layton' },
   ];
-  currentIndex = 0;
-  decisions = {};
+  currentIndex = 0; decisions = {};
   updateStats();
   showToast(`Loaded ${allComics.length} demo comics`, 'success');
   switchTab('triage');
 }
 
 function clearAll() {
-  allComics = [];
-  decisions = {};
-  currentIndex = 0;
-  priceCache = {};
+  allComics = []; decisions = {}; currentIndex = 0;
   updateStats();
   showToast('Cleared', 'success');
 }
 
-// ===== COMIC KEY =====
-function cardKey(comic) {
-  return `${comic.title}|${comic.itemNum}`;
-}
+function cardKey(comic) { return `${comic.title}|${comic.itemNum}`; }
 
-// ===== TRIAGE =====
-async function initTriage() {
+function initTriage() {
   if (allComics.length === 0) {
     document.getElementById('triage-content').style.display = 'none';
     document.getElementById('triage-loading').style.display = 'none';
@@ -1172,330 +527,159 @@ async function initTriage() {
     return;
   }
   document.getElementById('triage-empty').style.display = 'none';
-  while (currentIndex < allComics.length && decisions[cardKey(allComics[currentIndex])]) {
-    currentIndex++;
-  }
+  while (currentIndex < allComics.length && decisions[cardKey(allComics[currentIndex])]) currentIndex++;
   if (currentIndex >= allComics.length) currentIndex = 0;
-  await showComic(currentIndex);
+  showComic(currentIndex);
 }
 
-async function showComic(idx) {
-  if (idx >= allComics.length) {
-    showToast('All comics triaged! Check Results.', 'success');
-    switchTab('results');
-    return;
-  }
-
+function showComic(idx) {
+  if (idx >= allComics.length) { showToast('All comics triaged!', 'success'); switchTab('results'); return; }
   const comic = allComics[idx];
   document.getElementById('triage-content').style.display = 'none';
   document.getElementById('triage-loading').style.display = 'block';
   updateProgress();
 
-  // Set condition
   const condEl = document.getElementById('card-condition');
-  const condMap = {
-    'Near Mint': 'NM', 'NM': 'NM', 'NM/M': 'NM',
-    'Very Fine': 'VF', 'VF': 'VF', 'VF/NM': 'VF',
-    'Fine': 'FN', 'FN': 'FN', 'FN/VF': 'FN',
-    'Very Good': 'VG', 'VG': 'VG', 'VG/FN': 'VG',
-    'Good': 'GD', 'GD': 'GD',
-    'Fair': 'FR', 'FR': 'FR',
-    'Poor': 'PR', 'PR': 'PR'
-  };
-  condEl.value = condMap[comic.condition] || 'VF';
-
-  // Attempt GoCollect fetch if key set
-  let gcData = null;
-  if (gcApiKey) {
-    const key = cardKey(comic);
-    if (priceCache[key]) {
-      gcData = priceCache[key];
-    } else {
-      gcData = await fetchGoCollect(comic);
-      if (gcData) priceCache[key] = gcData;
-    }
-  }
+  condEl.value = COND_MAP[comic.condition] || comic.condition || '9.4';
 
   document.getElementById('triage-loading').style.display = 'none';
   document.getElementById('triage-content').style.display = 'block';
 
-  // Populate
   document.getElementById('card-name').textContent = comic.title;
   document.getElementById('card-issue').textContent = `Issue #${comic.itemNum}${comic.printing ? ' · ' + comic.printing + ' Print' : ''}`;
-  document.getElementById('card-desc').textContent = comic.deion || '';
+  document.getElementById('card-desc').textContent = comic.description || '';
   document.getElementById('card-qty').textContent = comic.qty || 1;
   document.getElementById('card-notes').value = comic.gradeNotes || '';
 
-  // Meta tags
   const metaEl = document.getElementById('card-meta');
   metaEl.innerHTML = '';
-
   if (comic.printing && comic.printing.toLowerCase().includes('1st')) {
-    const t = document.createElement('span');
-    t.className = 'meta-tag first-print';
-    t.textContent = '1st Print';
-    metaEl.appendChild(t);
+    const t = document.createElement('span'); t.className = 'meta-tag first-print'; t.textContent = '1st Print'; metaEl.appendChild(t);
   }
-
   if (comic.writer) {
-    const t = document.createElement('span');
-    t.className = 'meta-tag';
-    t.textContent = comic.writer;
-    metaEl.appendChild(t);
+    const t = document.createElement('span'); t.className = 'meta-tag'; t.textContent = comic.writer; metaEl.appendChild(t);
   }
-
   if (comic.artist) {
-    const t = document.createElement('span');
-    t.className = 'meta-tag';
-    t.textContent = '✏ ' + comic.artist;
-    metaEl.appendChild(t);
+    const t = document.createElement('span'); t.className = 'meta-tag'; t.textContent = '✏ ' + comic.artist; metaEl.appendChild(t);
   }
-
   if (comic.qty > 1) {
-    const t = document.createElement('span');
-    t.className = 'meta-tag';
-    t.textContent = `${comic.qty} Copies`;
-    metaEl.appendChild(t);
+    const t = document.createElement('span'); t.className = 'meta-tag'; t.textContent = `${comic.qty} Copies`; metaEl.appendChild(t);
   }
 
-  // Cover image placeholder (GoCollect may provide this)
-  const imgContainer = document.getElementById('card-image-container');
-  if (gcData?.image_url) {
-    imgContainer.innerHTML = `<img class="cover-img" src="${gcData.image_url}" alt="${comic.title}" onerror="this.parentElement.innerHTML='<div class=\\'cover-placeholder\\'>📖</div>'">`;
-  } else {
-    imgContainer.innerHTML = '<div class="cover-placeholder">📖</div>';
-  }
+  document.getElementById('card-image-container').innerHTML = '<div class="cover-placeholder">📖</div>';
 
-  // Prices
   const cbPrice = comic.cost > 0 ? comic.cost : null;
-  const gcPrice = gcData?.fair_market_value || gcData?.fmv || null;
-  const activePrice = gcPrice || cbPrice;
-
   document.getElementById('price-cb').textContent = cbPrice ? `$${cbPrice.toFixed(2)}` : '—';
   document.getElementById('price-cb').className = 'value' + (!cbPrice ? ' na' : '');
-  document.getElementById('price-gc').textContent = gcPrice ? `$${gcPrice.toFixed(2)}` : '—';
-  document.getElementById('price-gc').className = 'value' + (!gcPrice ? ' na' : (gcPrice >= 5 ? ' high' : ''));
-  document.getElementById('price-suggested').textContent = activePrice ? `$${activePrice.toFixed(2)}` : '—';
+  document.getElementById('price-gc').textContent = '—';
+  document.getElementById('price-gc').className = 'value na';
 
-  // Key issue detection
+  const isKey = isKnownKey(comic);
   const keyBanner = document.getElementById('key-banner');
-  const isKey = gcData?.is_key || isKnownKey(comic);
-  const keyNotes = gcData?.key_notes || getKeyNotes(comic);
-
   if (isKey) {
     keyBanner.style.display = 'flex';
-    const t = document.createElement('span');
-    t.className = 'meta-tag key';
-    t.textContent = '⭐ Key Issue';
-    metaEl.appendChild(t);
+    const t = document.createElement('span'); t.className = 'meta-tag key'; t.textContent = '⭐ Key Issue'; metaEl.appendChild(t);
   } else {
     keyBanner.style.display = 'none';
   }
 
-  comic._price = activePrice;
-  comic._basePrice = activePrice;
+  comic._basePrice = cbPrice;
   comic._isKey = isKey;
-function updateConditionPrice() {
-  const comic = allComics[currentIndex];
-  if (!comic) return;
 
-  const multipliers = {
-    '10.0': 1.50, '9.8': 1.25, '9.6': 1.15, '9.4': 1.00,
-    '9.2': 0.95, '9.0': 0.90, '8.5': 0.85, '8.0': 0.75,
-    '7.5': 0.65, '7.0': 0.50, '6.5': 0.40, '6.0': 0.30,
-    '5.5': 0.28, '5.0': 0.25, '4.5': 0.20, '4.0': 0.18,
-    '3.5': 0.15, '3.0': 0.13, '2.5': 0.12, '2.0': 0.10,
-    '1.8': 0.09, '1.5': 0.08, '1.0': 0.06, '0.5': 0.03
-  };
-
-  const grade = document.getElementById('card-condition').value;
-  const multiplier = multipliers[grade] || 1.0;
-  const basePrice = comic._basePrice;
-
-  if (basePrice == null) return;
-
-  const adjustedPrice = basePrice * multiplier;
-  comic._price = adjustedPrice;
-
-  document.getElementById('price-suggested').textContent = `$${adjustedPrice.toFixed(2)}`;
-
-  const thresh = {
-    grade: parseFloat(document.getElementById('thresh-grade').value) || 100,
-    show: parseFloat(document.getElementById('thresh-show').value) || 5,
-  };
-
-  const isKey = comic._isKey;
-  let bucket = 'dollarbox';
-  let label = `$1 Box — $${adjustedPrice.toFixed(2)} (${grade})`;
-
-  if (parseFloat(grade) <= 1.5) {
-    bucket = 'trash';
-    label = `Trash — grade ${grade} too poor to sell`;
-  } else if (adjustedPrice >= thresh.grade && parseFloat(grade) >= 8.0) {
-    bucket = 'grade';
-    label = `Grade — $${adjustedPrice.toFixed(2)} at ${grade}, graded premium likely`;
-  } else if (adjustedPrice >= thresh.show || (isKey && parseFloat(grade) > 1.5)) {
-    bucket = 'show';
-    label = isKey && adjustedPrice < thresh.show
-      ? `Show — key issue, price individually regardless`
-      : `Show / eBay — $${adjustedPrice.toFixed(2)} at ${grade}`;
-  }
-
-  const bannerEl = document.getElementById('suggestion-banner');
-  bannerEl.className = 'suggestion ' + bucket;
-  document.getElementById('suggestion-text').textContent = '💡 Suggested: ' + label;
-}
-  // Update external lookup links
   updateExternalLinks(comic);
-
   updateConditionPrice();
 
-  // Highlight existing decision
   document.querySelectorAll('.btn-decision').forEach(b => b.classList.remove('selected'));
   const existing = decisions[cardKey(comic)];
-  if (existing) {
-    document.querySelector('.btn-' + existing.bucket)?.classList.add('selected');
-  }
+  if (existing) document.querySelector('.btn-' + existing.bucket)?.classList.add('selected');
 }
 
-// Basic key issue detection from deion when no GoCollect API
 function isKnownKey(comic) {
-  const desc = (comic.deion || comic.notes || '').toLowerCase();
-  const keyPhrases = ['1st app', 'first app', '1st appearance', 'origin of', 'death of', '1st issue', 'key issue'];
-  return keyPhrases.some(p => desc.includes(p));
-}
-
-function getKeyNotes(comic) {
-  return comic.deion || comic.notes || 'Key issue detected';
+  const desc = (comic.description || comic.gradeNotes || '').toLowerCase();
+  return ['1st app','first app','1st appearance','origin of','death of','key issue'].some(p => desc.includes(p));
 }
 
 function updateExternalLinks(comic) {
   const ebayQuery = encodeURIComponent(`"${comic.title}" #${comic.itemNum} comic`);
-  const ebayUrl = `https://www.ebay.com/sch/i.html?_nkw=${ebayQuery}&LH_Complete=1&LH_Sold=1&_sop=13`;
+  document.getElementById('ebay-sold-link').href = `https://www.ebay.com/sch/i.html?_nkw=${ebayQuery}&LH_Complete=1&LH_Sold=1&_sop=13`;
   const gcQuery = encodeURIComponent(`${comic.title} ${comic.itemNum}`);
-  const gcUrl = `https://gocollect.com/search?q=${gcQuery}&type=comic`;
-
-  const ebayLink = document.getElementById('ebay-sold-link');
-  const gcLink = document.getElementById('gocollect-link');
-  if (ebayLink) ebayLink.href = ebayUrl;
-  if (gcLink) gcLink.href = gcUrl;
+  document.getElementById('gocollect-link').href = `https://gocollect.com/search?q=${gcQuery}&type=comic`;
 }
 
-function updateSuggestion() {
+function updateConditionPrice() {
   const comic = allComics[currentIndex];
   if (!comic) return;
+  const grade = document.getElementById('card-condition').value;
+  const multiplier = CONDITION_MULTIPLIERS[grade] || 1.0;
+  const basePrice = comic._basePrice;
+  const suggestedEl = document.getElementById('price-suggested');
 
-  const condEl = document.getElementById('card-condition');
+  if (basePrice == null) {
+    suggestedEl.textContent = '⚠ Manual Check';
+    suggestedEl.style.color = '#f97316';
+    suggestedEl.style.fontSize = '14px';
+    document.getElementById('suggestion-banner').className = 'suggestion show';
+    document.getElementById('suggestion-text').textContent = '💡 Suggested: Manual Check — no price data, look up before deciding';
+    return;
+  }
+
+  const adjustedPrice = basePrice * multiplier;
+  comic._price = adjustedPrice;
+  suggestedEl.textContent = `$${adjustedPrice.toFixed(2)}`;
+  suggestedEl.style.color = '';
+  suggestedEl.style.fontSize = '';
+
   const thresh = {
     grade: parseFloat(document.getElementById('thresh-grade').value) || 100,
     show: parseFloat(document.getElementById('thresh-show').value) || 5,
   };
-
-  const activePrice = comic._price;
   const isKey = comic._isKey;
-  const cond = condEl.value;
-
+  const gradeNum = parseFloat(grade);
   let bucket = 'dollarbox';
-  let label = '$1 Box — bulk bin at shows';
+  let label = `$1 Box — $${adjustedPrice.toFixed(2)} (${grade})`;
 
-  if (cond === 'PR' || cond === 'FR') {
-    bucket = 'trash';
-    label = 'Trash — condition too poor to sell';
-  } else if (activePrice >= thresh.grade && (cond === 'NM' || cond === 'VF')) {
-    bucket = 'grade';
-    label = `Grade — $${activePrice?.toFixed(2)} raw, graded premium likely`;
-  } else if (activePrice >= thresh.show || (isKey && cond !== 'PR' && cond !== 'FR' && cond !== 'GD')) {
+  if (gradeNum <= 1.5) {
+    bucket = 'trash'; label = `Trash — grade ${grade} too poor to sell`;
+  } else if (adjustedPrice >= thresh.grade && gradeNum >= 8.0) {
+    bucket = 'grade'; label = `Grade — $${adjustedPrice.toFixed(2)} at ${grade}, graded premium likely`;
+  } else if (adjustedPrice >= thresh.show || (isKey && gradeNum > 1.5)) {
     bucket = 'show';
-    label = isKey && activePrice < thresh.show
-      ? `Show — key issue, price individually regardless`
-      : `Show / eBay — $${activePrice?.toFixed(2)}, worth pricing individually`;
+    label = (isKey && adjustedPrice < thresh.show) ? `Show — key issue, price individually` : `Show / eBay — $${adjustedPrice.toFixed(2)} at ${grade}`;
   }
 
-  const bannerEl = document.getElementById('suggestion-banner');
-  bannerEl.className = 'suggestion ' + bucket;
+  document.getElementById('suggestion-banner').className = 'suggestion ' + bucket;
   document.getElementById('suggestion-text').textContent = '💡 Suggested: ' + label;
-}
-
-async function fetchGoCollect(comic) {
-  try {
-    document.getElementById('loading-text').textContent = `Fetching: ${comic.title} #${comic.itemNum}...`;
-    // Search for the collectible
-    const searchUrl = `https://api.gocollect.com/v1/collectibles?search=${encodeURIComponent(comic.title + ' ' + comic.itemNum)}&type=comic`;
-    const res = await fetch(searchUrl, {
-      headers: { 'Authorization': `Bearer ${gcApiKey}` }
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    // Get first result and fetch insights
-    const items = data.data || data.results || data.items || [];
-    if (items.length === 0) return null;
-    const item = items[0];
-    const itemId = item.id || item.item_id;
-    if (!itemId) return item;
-    // Fetch insights for raw grade
-    await new Promise(r => setTimeout(r, 150));
-    const insightRes = await fetch(`https://api.gocollect.com/v1/insights/item/${itemId}`, {
-      headers: { 'Authorization': `Bearer ${gcApiKey}` }
-    });
-    if (!insightRes.ok) return item;
-    const insight = await insightRes.json();
-    return { ...item, ...insight };
-  } catch(e) {
-    return null;
-  }
 }
 
 function decide(bucket) {
   if (allComics.length === 0) return;
   const comic = allComics[currentIndex];
-  const key = cardKey(comic);
-  decisions[key] = {
-    bucket,
-    price: comic._price,
-    title: comic.title,
-    itemNum: comic.itemNum,
+  decisions[cardKey(comic)] = {
+    bucket, price: comic._price, title: comic.title, itemNum: comic.itemNum,
     condition: document.getElementById('card-condition').value,
-    qty: comic.qty,
-    isKey: comic._isKey,
-    deion: comic.deion,
+    qty: comic.qty, isKey: comic._isKey, description: comic.description,
     notes: document.getElementById('card-notes').value,
-    printing: comic.printing,
-    writer: comic.writer,
-    artist: comic.artist
+    printing: comic.printing, writer: comic.writer, artist: comic.artist
   };
-
   document.querySelectorAll('.btn-decision').forEach(b => b.classList.remove('selected'));
   document.querySelector('.btn-' + bucket)?.classList.add('selected');
   updateStats();
   setTimeout(() => nextCard(), 300);
 }
 
-async function nextCard() {
+function nextCard() {
   currentIndex++;
-  while (currentIndex < allComics.length && decisions[cardKey(allComics[currentIndex])]) {
-    currentIndex++;
-  }
+  while (currentIndex < allComics.length && decisions[cardKey(allComics[currentIndex])]) currentIndex++;
   if (currentIndex >= allComics.length) {
     currentIndex = allComics.findIndex(c => !decisions[cardKey(c)]);
-    if (currentIndex === -1) {
-      showToast('All comics triaged!', 'success');
-      switchTab('results');
-      return;
-    }
+    if (currentIndex === -1) { showToast('All comics triaged!', 'success'); switchTab('results'); return; }
   }
-  await showComic(currentIndex);
+  showComic(currentIndex);
 }
 
-async function prevCard() {
-  if (currentIndex > 0) {
-    currentIndex--;
-    await showComic(currentIndex);
-  }
-}
-
+function prevCard() { if (currentIndex > 0) { currentIndex--; showComic(currentIndex); } }
 function skipCard() { nextCard(); }
 
-// ===== RESULTS =====
 function renderResults() {
   const decided = Object.values(decisions);
   if (decided.length === 0) {
@@ -1505,14 +689,12 @@ function renderResults() {
   }
   document.getElementById('results-empty').style.display = 'none';
   document.getElementById('results-content').style.display = 'block';
-
   ['grade','show','dollarbox','trash'].forEach(b => {
     const cards = decided.filter(d => d.bucket === b);
     const total = cards.reduce((sum, c) => sum + (c.price || 0) * (c.qty || 1), 0);
     document.getElementById('count-' + b).textContent = cards.length;
     document.getElementById('val-' + b).textContent = total > 0 ? `~$${total.toFixed(0)}` : '—';
   });
-
   filterResults(activeFilter);
 }
 
@@ -1520,28 +702,15 @@ function filterResults(filter) {
   activeFilter = filter;
   const decided = Object.values(decisions);
   const filtered = filter === 'all' ? decided : decided.filter(d => d.bucket === filter);
-
   document.querySelectorAll('.filter-tab').forEach(t => {
     const match = t.textContent.toLowerCase().replace(/[^a-z]/g,'');
     const filterClean = filter.replace(/[^a-z]/g,'');
     t.classList.toggle('active', match.includes(filterClean) || (filter === 'all' && t.textContent === 'All'));
   });
-
-  const labels = {
-    all: 'All Triaged Comics',
-    grade: '💎 Grade Queue',
-    show: '🏷 Show / eBay Stack',
-    dollarbox: '📦 $1 Box',
-    trash: '🗑 Trash Pile'
-  };
+  const labels = { all: 'All Triaged Comics', grade: '💎 Grade Queue', show: '🏷 Show / eBay Stack', dollarbox: '📦 $1 Box', trash: '🗑 Trash Pile' };
   document.getElementById('results-filter-label').textContent = labels[filter] || filter;
-
   const body = document.getElementById('results-list-body');
-  if (filtered.length === 0) {
-    body.innerHTML = '<div class="loading-text">No comics in this category yet.</div>';
-    return;
-  }
-
+  if (filtered.length === 0) { body.innerHTML = '<div class="loading-text">No comics in this category yet.</div>'; return; }
   const sorted = [...filtered].sort((a, b) => (b.price || 0) - (a.price || 0));
   body.innerHTML = sorted.map(d => `
     <div class="result-item">
@@ -1549,41 +718,34 @@ function filterResults(filter) {
       ${d.isKey ? '<div class="key-dot"></div>' : ''}
       <div class="result-item-info">
         <div class="result-item-name">${d.title} #${d.itemNum}${d.printing ? ' (' + d.printing + ')' : ''}</div>
-        <div class="result-item-meta">${d.condition || 'VF'}${d.qty > 1 ? ' · Qty: ' + d.qty : ''}${d.deion ? ' · ' + d.deion.substring(0,50) + (d.deion.length > 50 ? '…' : '') : ''}${d.notes ? ' · 📝 ' + d.notes : ''}</div>
+        <div class="result-item-meta">${d.condition || '9.4'}${d.qty > 1 ? ' · Qty: ' + d.qty : ''}${d.description ? ' · ' + d.description.substring(0,50) + (d.description.length > 50 ? '…' : '') : ''}${d.notes ? ' · 📝 ' + d.notes : ''}</div>
       </div>
-      <div class="result-item-price" style="color: var(--${d.bucket})">${d.price ? '$' + d.price.toFixed(2) : '—'}</div>
+      <div class="result-item-price" style="color:var(--${d.bucket})">${d.price ? '$' + d.price.toFixed(2) : '—'}</div>
     </div>
   `).join('');
 }
 
-// ===== EXPORT =====
 function exportCSV(filter) {
   const decided = Object.values(decisions);
   const filtered = filter === 'all' ? decided : decided.filter(d => d.bucket === filter);
   if (filtered.length === 0) { showToast('No comics in this category', 'error'); return; }
-
-  const headers = 'Title,Issue,Printing,Condition,Quantity,Price,Bucket,Key Issue,Deion,Notes,Writer,Artist';
+  const headers = 'Title,Issue,Printing,Grade,Quantity,Price,Bucket,Key Issue,Description,Notes,Writer,Artist';
   const rows = filtered.map(d =>
-    `"${d.title}","${d.itemNum}","${d.printing||''}","${d.condition||'VF'}","${d.qty||1}","${d.price ? d.price.toFixed(2) : ''}","${d.bucket}","${d.isKey ? 'Yes' : 'No'}","${(d.deion||'').replace(/"/g,"'")}","${(d.notes||'').replace(/"/g,"'")}","${d.writer||''}","${d.artist||''}"`
+    `"${d.title}","${d.itemNum}","${d.printing||''}","${d.condition||'9.4'}","${d.qty||1}","${d.price ? d.price.toFixed(2) : ''}","${d.bucket}","${d.isKey ? 'Yes' : 'No'}","${(d.description||'').replace(/"/g,"'")}","${(d.notes||'').replace(/"/g,"'")}","${d.writer||''}","${d.artist||''}"`
   );
-
   const csv = [headers, ...rows].join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url;
-  a.download = `issue-triage-${filter}-${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
+  a.href = url; a.download = `issue-triage-${filter}-${new Date().toISOString().slice(0,10)}.csv`; a.click();
   URL.revokeObjectURL(url);
   showToast(`Exported ${filtered.length} comics`, 'success');
 }
 
-// ===== UTILS =====
 function updateProgress() {
   const total = allComics.length;
   const done = Object.keys(decisions).length;
-  const pct = total > 0 ? (done / total * 100) : 0;
-  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-fill').style.width = (total > 0 ? done/total*100 : 0) + '%';
   document.getElementById('progress-label').textContent = `${done} / ${total}`;
 }
 
@@ -1595,242 +757,18 @@ function updateStats() {
 
 function showToast(msg, type = '') {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show ' + type;
+  t.textContent = msg; t.className = 'toast show ' + type;
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// ===== DRAG & DROP =====
 const dropZone = document.getElementById('drop-zone');
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
 dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropZone.classList.remove('drag-over');
+  e.preventDefault(); dropZone.classList.remove('drag-over');
   const file = e.dataTransfer.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = ev => parseCSV(ev.target.result);
-    reader.readAsText(file);
-  }
+  if (file) { const reader = new FileReader(); reader.onload = ev => parseCSV(ev.target.result); reader.readAsText(file); }
 });
-
-
-// ===== TAB SWITCHING =====
-function switchTab(name) {
-    const tabs = ['import', 'triage', 'results'];
-    document.querySelectorAll('.tab').forEach((t, i) => {
-        t.classList.toggle('active', tabs[i] === name);
-    });
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('panel-' + name).classList.add('active');
-    
-    if (name === 'triage') initTriage();
-    if (name === 'results') renderResults();
-}
-
-// ===== CSV HANDLING =====
-function handleFileSelect(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    parseFile(file);
-}
-
-function parseFile(file) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const text = e.target.result;
-        // ComicBase usually uses commas, but sometimes tabs. 
-        const rows = text.split('\n').map(row => row.split(',').map(cell => cell.replace(/"/g, '').trim()));
-        const headers = rows[0];
-        
-               allComics = rows.slice(1)
-            .filter(r => r[map.title]) // Skip empty rows
-            .map(r => ({
-                title: r[map.title],
-                issue: r[map.issue] || '1',
-                price: parseFloat(r[map.price]) || 0,
-                condition: r[map.condition] || 'NM',
-                notes: r[map.notes] || '',
-                qty: r[map.quantity] || '1'
-            }));
-
-        if (allComics.length > 0) {
-            showToast(`Imported ${allComics.length} comics!`, 'success');
-            updateStats();
-            switchTab('triage');
-        }
-    };
-    reader.readAsText(file);
-}
-
-// ===== TRIAGE LOGIC =====
-function initTriage() {
-    if (allComics.length === 0) {
-        document.getElementById('triage-content').style.display = 'none';
-        document.getElementById('triage-empty').style.display = 'block';
-        return;
-    }
-    document.getElementById('triage-content').style.display = 'block';
-    document.getElementById('triage-empty').style.display = 'none';
-    renderCurrentComic();
-}
-
-function renderCurrentComic() {
-    const comic = allComics[currentIndex];
-    const threshGrade = parseFloat(document.getElementById('thresh-grade').value);
-    const threshShow = parseFloat(document.getElementById('thresh-show').value);
-
-    // Update UI Labels
-    document.getElementById('card-name').textContent = comic.title;
-    document.getElementById('card-issue').textContent = `#${comic.issue}`;
-    document.getElementById('price-cb').textContent = `$${comic.price.toFixed(2)}`;
-    document.getElementById('card-qty').textContent = comic.qty;
-    document.getElementById('card-notes').value = comic.notes;
-    
-    // Key Detection
-    const isKey = comic.notes.toLowerCase().includes('1st') || comic.notes.toLowerCase().includes('key');
-    document.getElementById('key-banner').style.display = isKey ? 'block' : 'none';
-
-    // eBay & GoCollect Link Generation
-    const searchQuery = `${comic.title} ${comic.issue} 1st print`;
-    document.getElementById('ebay-sold-link').href = `https://www.ebay.com/sch/63/i.html?_nkw=${encodeURIComponent(searchQuery)}&LH_Sold=1&LH_Complete=1`;
-    document.getElementById('gocollect-link').href = `https://gocollect.com/comics/search?q=${encodeURIComponent(comic.title + ' ' + comic.issue)}`;
-
-    // Logic Suggestion
-    const sugBanner = document.getElementById('suggestion-banner');
-    const sugText = document.getElementById('suggestion-text');
-    
-    // Clear previous classes
-    sugBanner.className = 'suggestion';
-    
-    if (comic.price >= threshGrade || isKey) {
-        sugText.textContent = "SUGGESTION: SEND FOR GRADING";
-        sugBanner.classList.add('grade');
-    } else if (comic.price >= threshShow) {
-        sugText.textContent = "SUGGESTION: PUT IN SHOW STOCK";
-        sugBanner.classList.add('show');
-    } else {
-        sugText.textContent = "SUGGESTION: $1 BIN / BULK";
-        sugBanner.classList.add('dollarbox');
-    }
-
-    updateProgress();
-}
-
-function decide(choice) {
-    const comic = allComics[currentIndex];
-    decisions[currentIndex] = {
-        ...comic,
-        decision: choice,
-        userNotes: document.getElementById('card-notes').value
-    };
-    
-    nextCard();
-}
-
-function nextCard() {
-    if (currentIndex < allComics.length - 1) {
-        currentIndex++;
-        renderCurrentComic();
-    } else {
-        showToast("Triage Complete!", "success");
-        switchTab('results');
-    }
-    updateStats();
-}
-
-function prevCard() {
-    if (currentIndex > 0) {
-        currentIndex--;
-        renderCurrentComic();
-    }
-}
-
-function skipCard() { nextCard(); }
-
-// ===== RESULTS & EXPORT =====
-function renderResults() {
-    const listBody = document.getElementById('results-list-body');
-    const filteredDecisions = Object.values(decisions).filter(d => activeFilter === 'all' || d.decision === activeFilter);
-    
-    if (Object.keys(decisions).length === 0) {
-        document.getElementById('results-content').style.display = 'none';
-        document.getElementById('results-empty').style.display = 'block';
-        return;
-    }
-
-    document.getElementById('results-content').style.display = 'block';
-    document.getElementById('results-empty').style.display = 'none';
-
-    // Update Counts
-    const counts = { grade: 0, show: 0, dollarbox: 0, trash: 0 };
-    Object.values(decisions).forEach(d => counts[d.decision]++);
-    
-    document.getElementById('count-grade').textContent = counts.grade;
-    document.getElementById('count-show').textContent = counts.show;
-    document.getElementById('count-dollarbox').textContent = counts.dollarbox;
-    document.getElementById('count-trash').textContent = counts.trash;
-
-    listBody.innerHTML = filteredDecisions.map(d => `
-        <div class="result-item">
-            <div class="bucket-dot ${d.decision}"></div>
-            <div class="result-item-info">
-                <div class="result-item-name">${d.title} #${d.issue}</div>
-                <div class="result-item-meta">${d.condition} | ${d.userNotes || 'No notes'}</div>
-            </div>
-            <div class="result-item-price">$${d.price.toFixed(2)}</div>
-        </div>
-    `).join('');
-}
-
-function filterResults(type) {
-    activeFilter = type;
-    document.querySelectorAll('.filter-tab').forEach(t => {
-        t.classList.toggle('active', t.classList.contains(type));
-    });
-    renderResults();
-}
-
-function exportCSV(filter) {
-    const items = Object.values(decisions).filter(d => filter === 'all' || d.decision === filter);
-    if (items.length === 0) return showToast("Nothing to export", "error");
-
-    let csv = "Title,Issue,Price,Grade,Decision,Notes\n";
-    items.forEach(d => {
-        csv += `"${d.title}","${d.issue}","${d.price}","${d.condition}","${d.decision}","${d.userNotes}"\n`;
-    });
-
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.setAttribute('href', url);
-    a.setAttribute('download', `IssueTriage-${filter}-${new Date().toISOString().slice(0,10)}.csv`);
-    a.click();
-}
-
-// ===== UTILS =====
-function updateProgress() {
-    const total = allComics.length;
-    const done = Object.keys(decisions).length;
-    const pct = total > 0 ? (done / total * 100) : 0;
-    document.getElementById('progress-fill').style.width = pct + '%';
-    document.getElementById('progress-label').textContent = `${currentIndex + 1} / ${total}`;
-}
-
-function updateStats() {
-    const done = Object.keys(decisions).length;
-    document.getElementById('stat-processed').textContent = done;
-    document.getElementById('stat-remaining').textContent = allComics.length - done;
-}
-
-function showToast(msg, type = '') {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = 'toast show ' + type;
-    setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-function clearAll() {
-    if(confirm("Clear all data and progress?")) location.reload();
-}
+</script>
+</body>
+</html>
