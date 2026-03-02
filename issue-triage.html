@@ -863,15 +863,32 @@
 
         <div class="card-controls">
           <label>Condition:</label>
-          <select class="condition-select" id="card-condition" onchange="updateSuggestion()">
-            <option value="NM">NM — Near Mint</option>
-            <option value="VF">VF — Very Fine</option>
-            <option value="FN">FN — Fine</option>
-            <option value="VG">VG — Very Good</option>
-            <option value="GD">GD — Good</option>
-            <option value="FR">FR — Fair</option>
-            <option value="PR">PR — Poor</option>
-          </select>
+          <select class="condition-select" id="card-condition" onchange="updateConditionPrice()">
+  <option value="10.0">10.0 — Gem Mint</option>
+  <option value="9.8">9.8 — Near Mint/Mint</option>
+  <option value="9.6">9.6 — Near Mint+</option>
+  <option value="9.4" selected>9.4 — Near Mint</option>
+  <option value="9.2">9.2 — Near Mint-</option>
+  <option value="9.0">9.0 — Very Fine/Near Mint</option>
+  <option value="8.5">8.5 — Very Fine+</option>
+  <option value="8.0">8.0 — Very Fine</option>
+  <option value="7.5">7.5 — Very Fine-</option>
+  <option value="7.0">7.0 — Fine/Very Fine</option>
+  <option value="6.5">6.5 — Fine+</option>
+  <option value="6.0">6.0 — Fine</option>
+  <option value="5.5">5.5 — Fine-</option>
+  <option value="5.0">5.0 — Very Good/Fine</option>
+  <option value="4.5">4.5 — Very Good+</option>
+  <option value="4.0">4.0 — Very Good</option>
+  <option value="3.5">3.5 — Very Good-</option>
+  <option value="3.0">3.0 — Good/Very Good</option>
+  <option value="2.5">2.5 — Good+</option>
+  <option value="2.0">2.0 — Good</option>
+  <option value="1.8">1.8 — Good-</option>
+  <option value="1.5">1.5 — Fair/Good</option>
+  <option value="1.0">1.0 — Fair</option>
+  <option value="0.5">0.5 — Poor</option>
+</select>
           <label style="margin-left:8px;">Qty:</label>
           <span id="card-qty" style="font-size:15px; font-weight:700; color:var(--accent);">1</span>
         </div>
@@ -1274,12 +1291,62 @@ async function showComic(idx) {
   }
 
   comic._price = activePrice;
+  comic._basePrice = activePrice;
   comic._isKey = isKey;
+function updateConditionPrice() {
+  const comic = allComics[currentIndex];
+  if (!comic) return;
 
+  const multipliers = {
+    '10.0': 1.50, '9.8': 1.25, '9.6': 1.15, '9.4': 1.00,
+    '9.2': 0.95, '9.0': 0.90, '8.5': 0.85, '8.0': 0.75,
+    '7.5': 0.65, '7.0': 0.50, '6.5': 0.40, '6.0': 0.30,
+    '5.5': 0.28, '5.0': 0.25, '4.5': 0.20, '4.0': 0.18,
+    '3.5': 0.15, '3.0': 0.13, '2.5': 0.12, '2.0': 0.10,
+    '1.8': 0.09, '1.5': 0.08, '1.0': 0.06, '0.5': 0.03
+  };
+
+  const grade = document.getElementById('card-condition').value;
+  const multiplier = multipliers[grade] || 1.0;
+  const basePrice = comic._basePrice;
+
+  if (basePrice == null) return;
+
+  const adjustedPrice = basePrice * multiplier;
+  comic._price = adjustedPrice;
+
+  document.getElementById('price-suggested').textContent = `$${adjustedPrice.toFixed(2)}`;
+
+  const thresh = {
+    grade: parseFloat(document.getElementById('thresh-grade').value) || 100,
+    show: parseFloat(document.getElementById('thresh-show').value) || 5,
+  };
+
+  const isKey = comic._isKey;
+  let bucket = 'dollarbox';
+  let label = `$1 Box — $${adjustedPrice.toFixed(2)} (${grade})`;
+
+  if (parseFloat(grade) <= 1.5) {
+    bucket = 'trash';
+    label = `Trash — grade ${grade} too poor to sell`;
+  } else if (adjustedPrice >= thresh.grade && parseFloat(grade) >= 8.0) {
+    bucket = 'grade';
+    label = `Grade — $${adjustedPrice.toFixed(2)} at ${grade}, graded premium likely`;
+  } else if (adjustedPrice >= thresh.show || (isKey && parseFloat(grade) > 1.5)) {
+    bucket = 'show';
+    label = isKey && adjustedPrice < thresh.show
+      ? `Show — key issue, price individually regardless`
+      : `Show / eBay — $${adjustedPrice.toFixed(2)} at ${grade}`;
+  }
+
+  const bannerEl = document.getElementById('suggestion-banner');
+  bannerEl.className = 'suggestion ' + bucket;
+  document.getElementById('suggestion-text').textContent = '💡 Suggested: ' + label;
+}
   // Update external lookup links
   updateExternalLinks(comic);
 
-  updateSuggestion();
+  updateConditionPrice();
 
   // Highlight existing decision
   document.querySelectorAll('.btn-decision').forEach(b => b.classList.remove('selected'));
