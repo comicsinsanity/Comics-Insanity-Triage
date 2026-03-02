@@ -1220,7 +1220,7 @@ async function showComic(idx) {
   // Populate
   document.getElementById('card-name').textContent = comic.title;
   document.getElementById('card-issue').textContent = `Issue #${comic.itemNum}${comic.printing ? ' · ' + comic.printing + ' Print' : ''}`;
-  document.getElementById('card-desc').textContent = comic.description || '';
+  document.getElementById('card-desc').textContent = comic.deion || '';
   document.getElementById('card-qty').textContent = comic.qty || 1;
   document.getElementById('card-notes').value = comic.gradeNotes || '';
 
@@ -1356,15 +1356,15 @@ function updateConditionPrice() {
   }
 }
 
-// Basic key issue detection from description when no GoCollect API
+// Basic key issue detection from deion when no GoCollect API
 function isKnownKey(comic) {
-  const desc = (comic.description || comic.notes || '').toLowerCase();
+  const desc = (comic.deion || comic.notes || '').toLowerCase();
   const keyPhrases = ['1st app', 'first app', '1st appearance', 'origin of', 'death of', '1st issue', 'key issue'];
   return keyPhrases.some(p => desc.includes(p));
 }
 
 function getKeyNotes(comic) {
-  return comic.description || comic.notes || 'Key issue detected';
+  return comic.deion || comic.notes || 'Key issue detected';
 }
 
 function updateExternalLinks(comic) {
@@ -1455,7 +1455,7 @@ function decide(bucket) {
     condition: document.getElementById('card-condition').value,
     qty: comic.qty,
     isKey: comic._isKey,
-    description: comic.description,
+    deion: comic.deion,
     notes: document.getElementById('card-notes').value,
     printing: comic.printing,
     writer: comic.writer,
@@ -1547,7 +1547,7 @@ function filterResults(filter) {
       ${d.isKey ? '<div class="key-dot"></div>' : ''}
       <div class="result-item-info">
         <div class="result-item-name">${d.title} #${d.itemNum}${d.printing ? ' (' + d.printing + ')' : ''}</div>
-        <div class="result-item-meta">${d.condition || 'VF'}${d.qty > 1 ? ' · Qty: ' + d.qty : ''}${d.description ? ' · ' + d.description.substring(0,50) + (d.description.length > 50 ? '…' : '') : ''}${d.notes ? ' · 📝 ' + d.notes : ''}</div>
+        <div class="result-item-meta">${d.condition || 'VF'}${d.qty > 1 ? ' · Qty: ' + d.qty : ''}${d.deion ? ' · ' + d.deion.substring(0,50) + (d.deion.length > 50 ? '…' : '') : ''}${d.notes ? ' · 📝 ' + d.notes : ''}</div>
       </div>
       <div class="result-item-price" style="color: var(--${d.bucket})">${d.price ? '$' + d.price.toFixed(2) : '—'}</div>
     </div>
@@ -1560,9 +1560,9 @@ function exportCSV(filter) {
   const filtered = filter === 'all' ? decided : decided.filter(d => d.bucket === filter);
   if (filtered.length === 0) { showToast('No comics in this category', 'error'); return; }
 
-  const headers = 'Title,Issue,Printing,Condition,Quantity,Price,Bucket,Key Issue,Description,Notes,Writer,Artist';
+  const headers = 'Title,Issue,Printing,Condition,Quantity,Price,Bucket,Key Issue,Deion,Notes,Writer,Artist';
   const rows = filtered.map(d =>
-    `"${d.title}","${d.itemNum}","${d.printing||''}","${d.condition||'VF'}","${d.qty||1}","${d.price ? d.price.toFixed(2) : ''}","${d.bucket}","${d.isKey ? 'Yes' : 'No'}","${(d.description||'').replace(/"/g,"'")}","${(d.notes||'').replace(/"/g,"'")}","${d.writer||''}","${d.artist||''}"`
+    `"${d.title}","${d.itemNum}","${d.printing||''}","${d.condition||'VF'}","${d.qty||1}","${d.price ? d.price.toFixed(2) : ''}","${d.bucket}","${d.isKey ? 'Yes' : 'No'}","${(d.deion||'').replace(/"/g,"'")}","${(d.notes||'').replace(/"/g,"'")}","${d.writer||''}","${d.artist||''}"`
   );
 
   const csv = [headers, ...rows].join('\n');
@@ -1611,6 +1611,263 @@ dropZone.addEventListener('drop', e => {
     reader.onload = ev => parseCSV(ev.target.result);
     reader.readAsText(file);
   }
+});
+// ===== STATE =====
+let allComics = [];
+let currentIndex = 0;
+let decisions = {};
+let activeFilter = 'all';
+
+// ===== TAB SWITCHING =====
+function switchTab(name) {
+    const tabs = ['import', 'triage', 'results'];
+    document.querySelectorAll('.tab').forEach((t, i) => {
+        t.classList.toggle('active', tabs[i] === name);
+    });
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    
+    if (name === 'triage') initTriage();
+    if (name === 'results') renderResults();
+}
+
+// ===== CSV HANDLING =====
+function handleFileSelect(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    parseFile(file);
+}
+
+function parseFile(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const text = e.target.result;
+        // ComicBase usually uses commas, but sometimes tabs. 
+        const rows = text.split('\n').map(row => row.split(',').map(cell => cell.replace(/"/g, '').trim()));
+        const headers = rows[0];
+        
+        // Map ComicBase Headers to our App
+        const map = {
+            title: headers.indexOf('Title'),
+            issue: headers.indexOf('Item #'),
+            price: headers.indexOf('Price'),
+            condition: headers.indexOf('Condition'),
+            notes: headers.indexOf('Notes'),
+            quantity: headers.indexOf('Quantity')
+        };
+
+        allComics = rows.slice(1)
+            .filter(r => r[map.title]) // Skip empty rows
+            .map(r => ({
+                title: r[map.title],
+                issue: r[map.issue] || '1',
+                price: parseFloat(r[map.price]) || 0,
+                condition: r[map.condition] || 'NM',
+                notes: r[map.notes] || '',
+                qty: r[map.quantity] || '1'
+            }));
+
+        if (allComics.length > 0) {
+            showToast(`Imported ${allComics.length} comics!`, 'success');
+            updateStats();
+            switchTab('triage');
+        }
+    };
+    reader.readAsText(file);
+}
+
+// ===== TRIAGE LOGIC =====
+function initTriage() {
+    if (allComics.length === 0) {
+        document.getElementById('triage-content').style.display = 'none';
+        document.getElementById('triage-empty').style.display = 'block';
+        return;
+    }
+    document.getElementById('triage-content').style.display = 'block';
+    document.getElementById('triage-empty').style.display = 'none';
+    renderCurrentComic();
+}
+
+function renderCurrentComic() {
+    const comic = allComics[currentIndex];
+    const threshGrade = parseFloat(document.getElementById('thresh-grade').value);
+    const threshShow = parseFloat(document.getElementById('thresh-show').value);
+
+    // Update UI Labels
+    document.getElementById('card-name').textContent = comic.title;
+    document.getElementById('card-issue').textContent = `#${comic.issue}`;
+    document.getElementById('price-cb').textContent = `$${comic.price.toFixed(2)}`;
+    document.getElementById('card-qty').textContent = comic.qty;
+    document.getElementById('card-notes').value = comic.notes;
+    
+    // Key Detection
+    const isKey = comic.notes.toLowerCase().includes('1st') || comic.notes.toLowerCase().includes('key');
+    document.getElementById('key-banner').style.display = isKey ? 'block' : 'none';
+
+    // eBay & GoCollect Link Generation
+    const searchQuery = `${comic.title} ${comic.issue} 1st print`;
+    document.getElementById('ebay-sold-link').href = `https://www.ebay.com/sch/63/i.html?_nkw=${encodeURIComponent(searchQuery)}&LH_Sold=1&LH_Complete=1`;
+    document.getElementById('gocollect-link').href = `https://gocollect.com/comics/search?q=${encodeURIComponent(comic.title + ' ' + comic.issue)}`;
+
+    // Logic Suggestion
+    const sugBanner = document.getElementById('suggestion-banner');
+    const sugText = document.getElementById('suggestion-text');
+    
+    // Clear previous classes
+    sugBanner.className = 'suggestion';
+    
+    if (comic.price >= threshGrade || isKey) {
+        sugText.textContent = "SUGGESTION: SEND FOR GRADING";
+        sugBanner.classList.add('grade');
+    } else if (comic.price >= threshShow) {
+        sugText.textContent = "SUGGESTION: PUT IN SHOW STOCK";
+        sugBanner.classList.add('show');
+    } else {
+        sugText.textContent = "SUGGESTION: $1 BIN / BULK";
+        sugBanner.classList.add('dollarbox');
+    }
+
+    updateProgress();
+}
+
+function decide(choice) {
+    const comic = allComics[currentIndex];
+    decisions[currentIndex] = {
+        ...comic,
+        decision: choice,
+        userNotes: document.getElementById('card-notes').value
+    };
+    
+    nextCard();
+}
+
+function nextCard() {
+    if (currentIndex < allComics.length - 1) {
+        currentIndex++;
+        renderCurrentComic();
+    } else {
+        showToast("Triage Complete!", "success");
+        switchTab('results');
+    }
+    updateStats();
+}
+
+function prevCard() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        renderCurrentComic();
+    }
+}
+
+function skipCard() { nextCard(); }
+
+// ===== RESULTS & EXPORT =====
+function renderResults() {
+    const listBody = document.getElementById('results-list-body');
+    const filteredDecisions = Object.values(decisions).filter(d => activeFilter === 'all' || d.decision === activeFilter);
+    
+    if (Object.keys(decisions).length === 0) {
+        document.getElementById('results-content').style.display = 'none';
+        document.getElementById('results-empty').style.display = 'block';
+        return;
+    }
+
+    document.getElementById('results-content').style.display = 'block';
+    document.getElementById('results-empty').style.display = 'none';
+
+    // Update Counts
+    const counts = { grade: 0, show: 0, dollarbox: 0, trash: 0 };
+    Object.values(decisions).forEach(d => counts[d.decision]++);
+    
+    document.getElementById('count-grade').textContent = counts.grade;
+    document.getElementById('count-show').textContent = counts.show;
+    document.getElementById('count-dollarbox').textContent = counts.dollarbox;
+    document.getElementById('count-trash').textContent = counts.trash;
+
+    listBody.innerHTML = filteredDecisions.map(d => `
+        <div class="result-item">
+            <div class="bucket-dot ${d.decision}"></div>
+            <div class="result-item-info">
+                <div class="result-item-name">${d.title} #${d.issue}</div>
+                <div class="result-item-meta">${d.condition} | ${d.userNotes || 'No notes'}</div>
+            </div>
+            <div class="result-item-price">$${d.price.toFixed(2)}</div>
+        </div>
+    `).join('');
+}
+
+function filterResults(type) {
+    activeFilter = type;
+    document.querySelectorAll('.filter-tab').forEach(t => {
+        t.classList.toggle('active', t.classList.contains(type));
+    });
+    renderResults();
+}
+
+function exportCSV(filter) {
+    const items = Object.values(decisions).filter(d => filter === 'all' || d.decision === filter);
+    if (items.length === 0) return showToast("Nothing to export", "error");
+
+    let csv = "Title,Issue,Price,Grade,Decision,Notes\n";
+    items.forEach(d => {
+        csv += `"${d.title}","${d.issue}","${d.price}","${d.condition}","${d.decision}","${d.userNotes}"\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('href', url);
+    a.setAttribute('download', `IssueTriage-${filter}-${new Date().toISOString().slice(0,10)}.csv`);
+    a.click();
+}
+
+// ===== UTILS =====
+function updateProgress() {
+    const total = allComics.length;
+    const done = Object.keys(decisions).length;
+    const pct = total > 0 ? (done / total * 100) : 0;
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-label').textContent = `${currentIndex + 1} / ${total}`;
+}
+
+function updateStats() {
+    const done = Object.keys(decisions).length;
+    document.getElementById('stat-processed').textContent = done;
+    document.getElementById('stat-remaining').textContent = allComics.length - done;
+}
+
+function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + type;
+    setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function clearAll() {
+    if(confirm("Clear all data and progress?")) location.reload();
+}
+
+function loadDemo() {
+    allComics = [
+        { title: "Amazing Spider-Man", issue: "300", price: 600, condition: "VF/NM", notes: "1st Venom", qty: "1" },
+        { title: "X-Men", issue: "1", price: 85, condition: "NM", notes: "Jim Lee cover", qty: "1" },
+        { title: "Spawn", issue: "1", price: 40, condition: "NM", notes: "1st appearance", qty: "1" },
+        { title: "Youngblood", issue: "1", price: 0.50, condition: "Fine", notes: "", qty: "10" }
+    ];
+    showToast("Demo loaded", "success");
+    updateStats();
+    switchTab('triage');
+}
+
+// ===== DRAG & DROP =====
+const dropZone = document.getElementById('drop-zone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) parseFile(file);
 });
 </script>
 </body>
