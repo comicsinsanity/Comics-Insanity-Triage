@@ -1077,12 +1077,6 @@ function handleFileSelect(e) {
   reader.readAsText(file);
 }
 
-function parseCSV(text) {
-  const lines = text.split('\n').filter(l => l.trim());
-  if (lines.length < 2) { showToast('CSV appears empty', 'error'); return; }
-
-  const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim().toLowerCase());
-  const comics = [];
 
   for (let i = 1; i < lines.length; i++) {
     const row = parseCSVRow(lines[i]);
@@ -1620,11 +1614,7 @@ dropZone.addEventListener('drop', e => {
     reader.readAsText(file);
   }
 });
-// ===== STATE =====
-let allComics = [];
-let currentIndex = 0;
-let decisions = {};
-let activeFilter = 'all';
+
 
 // ===== TAB SWITCHING =====
 function switchTab(name) {
@@ -1654,17 +1644,7 @@ function parseFile(file) {
         const rows = text.split('\n').map(row => row.split(',').map(cell => cell.replace(/"/g, '').trim()));
         const headers = rows[0];
         
-        // Map ComicBase Headers to our App
-        const map = {
-            title: headers.indexOf('Title'),
-            issue: headers.indexOf('Item #'),
-            price: headers.indexOf('Price'),
-            condition: headers.indexOf('Condition'),
-            notes: headers.indexOf('Notes'),
-            quantity: headers.indexOf('Quantity')
-        };
-
-        allComics = rows.slice(1)
+               allComics = rows.slice(1)
             .filter(r => r[map.title]) // Skip empty rows
             .map(r => ({
                 title: r[map.title],
@@ -2037,10 +2017,7 @@ function handleFileSelect(e) {
   reader.readAsText(file);
 }
 
-function parseCSV(text) {
-  const lines = text.split('\n');
-  const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-  
+ 
   allComics = lines.slice(1).filter(l => l.trim()).map(line => {
     const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/"/g, ''));
     let obj = {};
@@ -2195,9 +2172,6 @@ function handleFileSelect(event) {
   reader.readAsText(file);
 }
 
-function parseCSV(text) {
-  const lines = text.split('\n');
-  const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
   
   allComics = lines.slice(1).filter(line => line.trim()).map(line => {
     const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/"/g, ''));
