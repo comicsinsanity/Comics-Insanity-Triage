@@ -692,6 +692,7 @@ async function fetchGoCollectPrice(comic) {
 }
 
 
+function isKnownKey(comic) {
   const desc = (comic.description || comic.gradeNotes || '').toLowerCase();
   return ['1st app','first app','1st appearance','origin of','death of','key issue'].some(p => desc.includes(p));
 }
