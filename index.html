@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+  if (window.location.hostname.includes('issuetriage')) {
+    window.location.replace('/issue-triage.html');
+  } else if (window.location.hostname.includes('waxtriage')) {
+    window.location.replace('/wax-triage.html');
+  } else {
+    window.location.replace('/mtg-triage.html');
+  }
+</script>
+</head>
+<body></body>
+</html>
