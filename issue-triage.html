@@ -426,17 +426,8 @@ let allComics = [];
 let currentIndex = 0;
 let decisions = {};
 let activeFilter = 'all';
-let gcToken = localStorage.getItem('gc-token') || '';
-
-// Init token display
-(function() {
-  if (gcToken) {
-    document.addEventListener('DOMContentLoaded', () => {
-      const el = document.getElementById('gc-token-status');
-      if (el) el.textContent = '✓ Token saved — GoCollect pricing active';
-    });
-  }
-})();
+let gcToken = '';
+try { gcToken = localStorage.getItem('gc-token') || ''; } catch(e) { gcToken = ''; }
 
 function saveGCToken() {
   const val = document.getElementById('gc-token-input').value.trim();
