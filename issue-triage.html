@@ -225,16 +225,8 @@
     <div class="settings-card" style="margin-top:12px;background:rgba(201,168,76,0.04);border-color:rgba(201,168,76,0.2);">
       <h3 style="color:rgba(201,168,76,0.9)">📊 GoCollect Pricing</h3>
       <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">
-        Enter your GoCollect API token to pull live FMV data for each comic. Your token is stored in your browser only and never sent anywhere except GoCollect.
+        GoCollect pricing uses the link-out button on each comic. Click <b style="color:var(--accent)">📊 GoCollect</b> to look up current FMV for any issue directly on their site. Live API pricing requires a server and is not available in this version.
       </p>
-      <div style="display:flex;gap:8px;margin-top:10px;">
-        <input type="password" id="gc-token-input" placeholder="Paste GoCollect API token..."
-          style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:Rajdhani,sans-serif;font-size:14px;transition:border-color 0.2s;"
-          oninput="this.style.borderColor='var(--border)'">
-        <button class="btn btn-primary btn-sm" onclick="saveGCToken()">Save</button>
-        <button class="btn btn-sm" onclick="clearGCToken()">Clear</button>
-      </div>
-      <div id="gc-token-status" style="font-size:12px;color:var(--text-muted);margin-top:6px;letter-spacing:0.5px;"></div>
     </div>
 
     <br>
@@ -448,9 +440,7 @@ function clearGCToken() {
   document.getElementById('gc-token-status').textContent = 'Token cleared';
   document.getElementById('gc-token-status').style.color = 'var(--text-muted)';
   showToast('Token cleared', 'success');
-}
-
-const CONDITION_MULTIPLIERS = {
+}const CONDITION_MULTIPLIERS = {
   '10.0': 1.50, '9.8': 1.25, '9.6': 1.15, '9.4': 1.00,
   '9.2': 0.95, '9.0': 0.90, '8.5': 0.85, '8.0': 0.75,
   '7.5': 0.65, '7.0': 0.50, '6.5': 0.40, '6.0': 0.30,
@@ -620,77 +610,10 @@ function showComic(idx) {
   updateExternalLinks(comic);
   updateConditionPrice();
 
-  // Fetch GoCollect price in background
-  if (gcToken) {
-    document.getElementById('price-gc').textContent = '…';
-    document.getElementById('price-gc').className = 'value na';
-    fetchGoCollectPrice(comic).then(fmv => {
-      if (fmv && fmv > 0) {
-        document.getElementById('price-gc').textContent = `$${fmv.toFixed(2)}`;
-        document.getElementById('price-gc').className = 'value high';
-        // If no CB price, use GoCollect as base
-        if (!comic._basePrice) {
-          comic._basePrice = fmv;
-          updateConditionPrice();
-        }
-      } else {
-        document.getElementById('price-gc').textContent = '—';
-        document.getElementById('price-gc').className = 'value na';
-      }
-    });
-  }
-
   document.querySelectorAll('.btn-decision').forEach(b => b.classList.remove('selected'));
   const existing = decisions[cardKey(comic)];
   if (existing) document.querySelector('.btn-' + existing.bucket)?.classList.add('selected');
 }
-
-async function fetchGoCollectPrice(comic) {
-  if (!gcToken) return null;
-
-  try {
-    // Step 1: Search for the comic
-    const searchQuery = encodeURIComponent(`${comic.title} ${comic.itemNum}`);
-    const searchRes = await fetch(`https://api.gocollect.com/v1/collectibles?q=${searchQuery}`, {
-      headers: { 'Authorization': `Bearer ${gcToken}` }
-    });
-    if (!searchRes.ok) return null;
-    const searchData = await searchRes.json();
-
-    // Find best match
-    const items = searchData.data || searchData.collectibles || searchData.results || searchData;
-    if (!Array.isArray(items) || items.length === 0) return null;
-
-    // Try to find exact match on issue number
-    const issueNum = comic.itemNum.toString().replace(/^0+/, '');
-    let match = items.find(item => {
-      const title = (item.title || item.name || '').toLowerCase();
-      const num = (item.issue_number || item.number || item.issue || '').toString().replace(/^0+/, '');
-      return title.includes(comic.title.toLowerCase().substring(0, 6)) && num === issueNum;
-    }) || items[0];
-
-    const itemId = match.id || match.collectible_id;
-    if (!itemId) return null;
-
-    // Step 2: Get insights/pricing
-    const grade = document.getElementById('card-condition').value;
-    const insightsRes = await fetch(`https://api.gocollect.com/v1/insights/item/${itemId}?grade=${grade}`, {
-      headers: { 'Authorization': `Bearer ${gcToken}` }
-    });
-    if (!insightsRes.ok) return null;
-    const insights = await insightsRes.json();
-
-    // Extract FMV from response
-    const fmv = insights.fmv || insights.fair_market_value || insights.average_value ||
-                insights.data?.fmv || insights.data?.average_price || null;
-    return fmv ? parseFloat(fmv) : null;
-
-  } catch (e) {
-    console.warn('GoCollect API error:', e);
-    return null;
-  }
-}
-
 
 function isKnownKey(comic) {
   const desc = (comic.description || comic.gradeNotes || '').toLowerCase();
@@ -866,16 +789,6 @@ dropZone.addEventListener('drop', e => {
   e.preventDefault(); dropZone.classList.remove('drag-over');
   const file = e.dataTransfer.files[0];
   if (file) { const reader = new FileReader(); reader.onload = ev => parseCSV(ev.target.result); reader.readAsText(file); }
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-  if (gcToken) {
-    const el = document.getElementById('gc-token-status');
-    if (el) {
-      el.textContent = '✓ Token saved — GoCollect pricing active';
-      el.style.color = 'var(--dollarbox)';
-    }
-  }
 });
 </script>
 </body>
