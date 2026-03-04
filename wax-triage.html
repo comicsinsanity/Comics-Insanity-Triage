@@ -267,9 +267,9 @@
             <div class="queue-sub" id="queue-sub">0 remaining · 0 done</div>
             <div class="queue-progress"><div class="queue-progress-fill" id="queue-progress-fill" style="width:0%"></div></div>
           </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn btn-sm" id="btn-back" onclick="goBack()" disabled>← Undo</button>
-            <button class="btn btn-sm" onclick="skipCard()">Skip →</button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <button class="btn btn-sm" id="btn-back" onclick="navBack()" disabled>← Back</button>
+            <button class="btn btn-sm" id="btn-next" onclick="navNext()">Next →</button>
             <button class="btn btn-sm btn-danger" onclick="clearQueue()">Clear Queue</button>
           </div>
         </div>
@@ -549,6 +549,7 @@ function handleFileSelect(event) {
       showToast(`Loaded ${cards.length} cards`, 'success');
       document.getElementById('import-section').style.display = 'none';
       document.getElementById('queue-section').style.display = 'block';
+      updateNavButtons();
       showCurrentCard();
     } catch(err) { showToast('Error reading CSV', 'error'); console.error(err); }
   };
@@ -570,10 +571,9 @@ importZone.addEventListener('drop', e => {
 // ===== QUEUE DISPLAY =====
 function showCurrentCard() {
   const remaining = queue.length - queueIndex;
-  const done = queueIndex;
-  const total = queue.length;
-  document.getElementById('queue-sub').textContent = `${remaining} remaining · ${done} done`;
-  document.getElementById('queue-progress-fill').style.width = (total > 0 ? done/total*100 : 0) + '%';
+  const done = decisions.filter(d => queue.some(q => q.collx_id && q.collx_id === d.collx_id)).length;
+  document.getElementById('queue-sub').textContent = `Card ${queueIndex + 1} of ${queue.length} · ${done} decided`;
+  document.getElementById('queue-progress-fill').style.width = (queue.length > 0 ? done/queue.length*100 : 0) + '%';
 
   if (queueIndex >= queue.length) {
     document.getElementById('card-display').innerHTML = `<div style="text-align:center;padding:30px;"><div style="font-size:40px;margin-bottom:12px;">🎉</div><div style="font-family:'Cinzel',serif;font-size:16px;color:var(--accent);letter-spacing:2px;">Queue Complete</div><div style="font-size:13px;color:var(--text-muted);margin-top:8px;">All ${total} cards triaged. Check Results tab.</div></div>`;
@@ -657,39 +657,64 @@ function showCurrentCard() {
 }
 
 // ===== QUEUE ACTIONS =====
-function goBack() {
+function navBack() {
   if (queueIndex === 0) return;
-  // Remove last decision
-  const last = decisions.pop();
-  localStorage.setItem('wax-decisions', JSON.stringify(decisions));
-  sessionCount = Math.max(0, sessionCount - 1);
-  updateStats();
-  renderRecentDecisions();
-  // Step back in queue
   queueIndex--;
-  if (queueIndex === 0) document.getElementById('btn-back').disabled = true;
+  updateNavButtons();
   showCurrentCard();
-  showToast(`Undid ${last.player}`, '');
+}
+
+function navNext() {
+  if (queueIndex >= queue.length - 1) return;
+  queueIndex++;
+  updateNavButtons();
+  showCurrentCard();
+}
+
+function updateNavButtons() {
+  document.getElementById('btn-back').disabled = queueIndex === 0;
+  document.getElementById('btn-next').disabled = queueIndex >= queue.length - 1;
 }
 
 function decideQueue(bucket) {
   if (queueIndex >= queue.length) return;
   const card = queue[queueIndex];
-  decisions.push({ ...card, bucket, timestamp: Date.now() });
+
+  // Update existing decision for this card if already decided, else add new
+  const existingIdx = decisions.findIndex(d => d.collx_id && d.collx_id === card.collx_id);
+  const decision = { ...card, bucket, timestamp: Date.now() };
+  if (existingIdx >= 0) {
+    decisions[existingIdx] = decision;
+  } else {
+    decisions.push(decision);
+    sessionCount++;
+  }
   localStorage.setItem('wax-decisions', JSON.stringify(decisions));
-  sessionCount++; updateStats(); renderRecentDecisions();
-  document.getElementById('btn-back').style.display = 'inline-flex';
-  document.getElementById('btn-back').disabled = false;
+  updateStats();
+  renderRecentDecisions();
+
+  // Mark card as decided in queue
+  queue[queueIndex]._decided = bucket;
+
   document.querySelectorAll('.btn-decision').forEach(b => b.classList.remove('selected'));
   document.querySelectorAll('.btn-' + bucket).forEach(b => b.classList.add('selected'));
   showToast(`${card.player} → ${bucket}`, 'success');
-  setTimeout(() => { queueIndex++; document.querySelectorAll('.btn-decision').forEach(b => b.classList.remove('selected')); showCurrentCard(); }, 350);
-}
 
-function skipCard() {
-  if (queueIndex >= queue.length) return;
-  queue.push(queue[queueIndex]); queue.splice(queueIndex, 1);
-  showCurrentCard(); showToast('Skipped — moved to end', '');
+  // Auto-advance to next if not at end
+  if (queueIndex < queue.length - 1) {
+    setTimeout(() => {
+      queueIndex++;
+      updateNavButtons();
+      document.querySelectorAll('.btn-decision').forEach(b => b.classList.remove('selected'));
+      showCurrentCard();
+    }, 350);
+  }
+  // If this card was already decided, highlight that bucket
+  const existing = decisions.find(d => d.collx_id && d.collx_id === card.collx_id);
+  if (existing) {
+    document.querySelectorAll('.btn-decision').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('.btn-' + existing.bucket).forEach(b => b.classList.add('selected'));
+  }
 }
 
 function clearQueue() {
