@@ -50,6 +50,7 @@
   .btn-primary { background: var(--accent); border-color: var(--accent); color: #0a0c10; }
   .btn-primary:hover { background: var(--accent2); border-color: var(--accent2); color: #0a0c10; }
   .btn-sm { padding: 6px 14px; font-size: 12px; }
+  .btn-sm:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
   .btn-danger { border-color: #ef4444; color: #ef4444; }
   .btn-danger:hover { background: rgba(239,68,68,0.1); }
 
@@ -267,7 +268,7 @@
             <div class="queue-progress"><div class="queue-progress-fill" id="queue-progress-fill" style="width:0%"></div></div>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn btn-sm" id="btn-back" onclick="goBack()" style="display:none">← Undo</button>
+            <button class="btn btn-sm" id="btn-back" onclick="goBack()" disabled>← Undo</button>
             <button class="btn btn-sm" onclick="skipCard()">Skip →</button>
             <button class="btn btn-sm btn-danger" onclick="clearQueue()">Clear Queue</button>
           </div>
@@ -666,7 +667,7 @@ function goBack() {
   renderRecentDecisions();
   // Step back in queue
   queueIndex--;
-  if (queueIndex === 0) document.getElementById('btn-back').style.display = 'none';
+  if (queueIndex === 0) document.getElementById('btn-back').disabled = true;
   showCurrentCard();
   showToast(`Undid ${last.player}`, '');
 }
@@ -678,6 +679,7 @@ function decideQueue(bucket) {
   localStorage.setItem('wax-decisions', JSON.stringify(decisions));
   sessionCount++; updateStats(); renderRecentDecisions();
   document.getElementById('btn-back').style.display = 'inline-flex';
+  document.getElementById('btn-back').disabled = false;
   document.querySelectorAll('.btn-decision').forEach(b => b.classList.remove('selected'));
   document.querySelectorAll('.btn-' + bucket).forEach(b => b.classList.add('selected'));
   showToast(`${card.player} → ${bucket}`, 'success');
