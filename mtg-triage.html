@@ -38,7 +38,6 @@
     overflow-x: hidden;
   }
 
-  /* Background texture */
   body::before {
     content: '';
     position: fixed;
@@ -50,7 +49,6 @@
     z-index: 0;
   }
 
-  /* ===== HEADER ===== */
   header {
     position: sticky;
     top: 0;
@@ -95,7 +93,6 @@
 
   .session-stats b { color: var(--accent); }
 
-  /* ===== MAIN LAYOUT ===== */
   main {
     position: relative;
     z-index: 1;
@@ -104,7 +101,6 @@
     padding: 16px;
   }
 
-  /* ===== TABS ===== */
   .tabs {
     display: flex;
     gap: 4px;
@@ -137,11 +133,9 @@
     border: 1px solid var(--border);
   }
 
-  /* ===== PANELS ===== */
   .panel { display: none; }
   .panel.active { display: block; }
 
-  /* ===== IMPORT PANEL ===== */
   .import-zone {
     border: 2px dashed var(--border);
     border-radius: 12px;
@@ -166,11 +160,7 @@
     background: rgba(201,168,76,0.04);
   }
 
-  .import-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
-    display: block;
-  }
+  .import-icon { font-size: 48px; margin-bottom: 16px; display: block; }
 
   .import-zone h3 {
     font-family: 'Cinzel', serif;
@@ -179,15 +169,8 @@
     margin-bottom: 8px;
   }
 
-  .import-zone p {
-    color: var(--text-muted);
-    font-size: 14px;
-    line-height: 1.6;
-  }
-
-  .import-zone input[type=file] {
-    display: none;
-  }
+  .import-zone p { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+  .import-zone input[type=file] { display: none; }
 
   .btn {
     display: inline-flex;
@@ -208,18 +191,10 @@
   }
 
   .btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  .btn-primary {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #0a0c10;
-  }
-
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #0a0c10; }
   .btn-primary:hover { background: var(--accent2); border-color: var(--accent2); color: #0a0c10; }
-
   .btn-sm { padding: 6px 14px; font-size: 12px; }
 
-  /* Settings section */
   .settings-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -237,17 +212,9 @@
     text-transform: uppercase;
   }
 
-  .threshold-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
+  .threshold-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-  .threshold-item {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
+  .threshold-item { display: flex; flex-direction: column; gap: 6px; }
 
   .threshold-item label {
     font-size: 12px;
@@ -269,33 +236,15 @@
     transition: border-color 0.2s;
   }
 
-  .threshold-item input:focus {
-    outline: none;
-    border-color: var(--accent);
-  }
+  .threshold-item input:focus { outline: none; border-color: var(--accent); }
 
-  /* ===== TRIAGE PANEL ===== */
+  /* TRIAGE HEADER — slider */
   .triage-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 16px;
-  }
-
-  .progress-bar {
-    flex: 1;
-    height: 4px;
-    background: var(--surface2);
-    border-radius: 2px;
-    overflow: hidden;
-    margin: 0 16px;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    border-radius: 2px;
-    transition: width 0.4s ease;
+    gap: 10px;
   }
 
   .progress-text {
@@ -304,9 +253,78 @@
     color: var(--text-muted);
     white-space: nowrap;
     letter-spacing: 1px;
+    min-width: 52px;
   }
 
-  /* Card display */
+  .slider-track {
+    flex: 1;
+    position: relative;
+    height: 28px;
+    display: flex;
+    align-items: center;
+  }
+
+  .slider-rail {
+    position: absolute;
+    left: 0; right: 0;
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .slider-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.2s ease;
+  }
+
+  .position-slider {
+    position: absolute;
+    left: 0; right: 0;
+    width: 100%;
+    height: 28px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+    margin: 0;
+  }
+
+  .position-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--accent2);
+    cursor: pointer;
+    box-shadow: 0 0 6px rgba(201,168,76,0.5);
+    transition: transform 0.15s;
+  }
+
+  .position-slider:active::-webkit-slider-thumb { transform: scale(1.25); }
+
+  .position-slider::-moz-range-thumb {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--accent2);
+    cursor: pointer;
+    box-shadow: 0 0 6px rgba(201,168,76,0.5);
+  }
+
+  .slider-hint {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-align: center;
+    min-width: 32px;
+  }
+
   .card-display {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -341,12 +359,7 @@
     margin-bottom: 4px;
   }
 
-  .card-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 8px;
-  }
+  .card-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 
   .meta-tag {
     padding: 3px 10px;
@@ -365,28 +378,9 @@
   .meta-tag.rarity-u { border-color: #7da8d4; color: #7da8d4; }
   .meta-tag.rarity-c { color: var(--text-dim); }
 
-  /* Format legality */
-  .format-legality {
-    padding: 0 20px 16px;
-    border-top: 1px solid var(--border);
-    margin-top: 4px;
-  }
-
-  .format-legality-label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    margin-bottom: 8px;
-    margin-top: 12px;
-  }
-
-  .format-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
+  .format-legality { padding: 0 20px 16px; border-top: 1px solid var(--border); margin-top: 4px; }
+  .format-legality-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; margin-top: 12px; }
+  .format-grid { display: flex; flex-wrap: wrap; gap: 6px; }
 
   .format-tag {
     padding: 3px 8px;
@@ -403,76 +397,17 @@
   .format-tag.banned { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: #ef4444; }
   .format-tag.restricted { background: rgba(249,115,22,0.1); border-color: rgba(249,115,22,0.3); color: var(--bulk); }
 
-  .card-image {
-    width: 80px;
-    height: 112px;
-    border-radius: 6px;
-    object-fit: cover;
-    border: 1px solid var(--border);
-    background: var(--surface2);
-  }
+  .card-image { width: 80px; height: 112px; border-radius: 6px; object-fit: cover; border: 1px solid var(--border); background: var(--surface2); }
+  .card-image-placeholder { width: 80px; height: 112px; border-radius: 6px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 28px; }
 
-  .card-image-placeholder {
-    width: 80px;
-    height: 112px;
-    border-radius: 6px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-  }
+  .price-section { padding: 0 20px 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 
-  /* Price section */
-  .price-section {
-    padding: 0 20px 20px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-  }
-
-  .price-box {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px;
-    text-align: center;
-  }
-
-  .price-box .label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 6px;
-  }
-
-  .price-box .value {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text);
-  }
-
+  .price-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; text-align: center; }
+  .price-box .label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+  .price-box .value { font-size: 20px; font-weight: 700; color: var(--text); }
   .price-box .value.high { color: var(--accent); }
   .price-box .value.na { color: var(--text-dim); font-size: 14px; }
 
-  .ebay-notice {
-    grid-column: 1 / -1;
-    background: rgba(59,130,246,0.05);
-    border: 1px solid rgba(59,130,246,0.2);
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 12px;
-    color: rgba(59,130,246,0.7);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    letter-spacing: 0.5px;
-  }
-
-  /* Suggestion banner */
   .suggestion {
     margin: 0 20px 20px;
     padding: 12px 16px;
@@ -492,7 +427,6 @@
   .suggestion.bulk { background: rgba(249,115,22,0.1); border: 1px solid rgba(249,115,22,0.3); color: var(--bulk); }
   .suggestion.damaged { background: rgba(107,114,128,0.1); border: 1px solid rgba(107,114,128,0.3); color: var(--damaged); }
 
-  /* Decision buttons */
   .decision-buttons {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -527,47 +461,21 @@
 
   .btn-grade { background: rgba(168,85,247,0.1); border-color: rgba(168,85,247,0.3); color: var(--grade); }
   .btn-grade:hover, .btn-grade.selected { background: rgba(168,85,247,0.25); border-color: var(--grade); }
-
   .btn-ebay { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); color: var(--ebay); }
   .btn-ebay:hover, .btn-ebay.selected { background: rgba(59,130,246,0.25); border-color: var(--ebay); }
-
   .btn-tcg { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.3); color: var(--tcg); }
   .btn-tcg:hover, .btn-tcg.selected { background: rgba(34,197,94,0.25); border-color: var(--tcg); }
-
   .btn-bulk { background: rgba(249,115,22,0.1); border-color: rgba(249,115,22,0.3); color: var(--bulk); }
   .btn-bulk:hover, .btn-bulk.selected { background: rgba(249,115,22,0.25); border-color: var(--bulk); }
-
   .btn-damaged { background: rgba(107,114,128,0.1); border-color: rgba(107,114,128,0.3); color: var(--damaged); }
   .btn-damaged:hover, .btn-damaged.selected { background: rgba(107,114,128,0.25); border-color: var(--damaged); }
 
-  .nav-buttons {
-    display: flex;
-    gap: 8px;
-    justify-content: space-between;
-  }
+  .nav-buttons { display: flex; gap: 8px; justify-content: space-between; }
 
-  /* ===== RESULTS PANEL ===== */
-  .results-summary {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
-  }
+  .results-summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+  @media (min-width: 600px) { .results-summary { grid-template-columns: repeat(5, 1fr); } }
 
-  @media (min-width: 600px) {
-    .results-summary { grid-template-columns: repeat(5, 1fr); }
-  }
-
-  .result-bucket {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px;
-    text-align: center;
-    transition: border-color 0.2s;
-    cursor: pointer;
-  }
-
+  .result-bucket { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; transition: border-color 0.2s; cursor: pointer; }
   .result-bucket:hover { border-color: var(--accent); }
   .result-bucket .bucket-icon { font-size: 24px; margin-bottom: 8px; }
   .result-bucket .bucket-name { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
@@ -580,47 +488,15 @@
   .result-bucket.bulk .bucket-count { color: var(--bulk); }
   .result-bucket.damaged .bucket-count { color: var(--damaged); }
 
-  .result-list {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-  }
+  .result-list { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
 
-  .result-list-header {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
+  .result-list-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
 
-  .result-list-header h3 {
-    font-family: 'Cinzel', serif;
-    font-size: 13px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
+  .result-list-header h3 { font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; }
 
-  .filter-tabs {
-    display: flex;
-    gap: 4px;
-  }
+  .filter-tabs { display: flex; gap: 4px; }
 
-  .filter-tab {
-    padding: 4px 10px;
-    border-radius: 5px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text-muted);
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
+  .filter-tab { padding: 4px 10px; border-radius: 5px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.15s; }
   .filter-tab.active, .filter-tab:hover { background: var(--surface2); color: var(--text); }
   .filter-tab.grade.active { color: var(--grade); border-color: var(--grade); }
   .filter-tab.ebay.active { color: var(--ebay); border-color: var(--ebay); }
@@ -628,15 +504,7 @@
   .filter-tab.bulk.active { color: var(--bulk); border-color: var(--bulk); }
   .filter-tab.damaged.active { color: var(--damaged); border-color: var(--damaged); }
 
-  .result-item {
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    transition: background 0.15s;
-  }
-
+  .result-item { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; transition: background 0.15s; }
   .result-item:last-child { border-bottom: none; }
   .result-item:hover { background: var(--surface2); }
 
@@ -644,123 +512,40 @@
   .result-item-name { font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .result-item-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
   .result-item-price { font-size: 16px; font-weight: 700; text-align: right; }
-  
-  .bucket-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
 
+  .bucket-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
   .bucket-dot.grade { background: var(--grade); }
   .bucket-dot.ebay { background: var(--ebay); }
   .bucket-dot.tcg { background: var(--tcg); }
   .bucket-dot.bulk { background: var(--bulk); }
   .bucket-dot.damaged { background: var(--damaged); }
 
-  .export-bar {
-    display: flex;
-    gap: 8px;
-    margin-top: 16px;
-    flex-wrap: wrap;
-  }
+  .export-bar { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
 
-  /* ===== EMPTY STATE ===== */
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--text-muted);
-  }
-
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
   .empty-state .icon { font-size: 48px; margin-bottom: 16px; display: block; }
   .empty-state h3 { font-family: 'Cinzel', serif; color: var(--text-dim); font-size: 16px; margin-bottom: 8px; }
   .empty-state p { font-size: 14px; line-height: 1.6; }
 
-  /* ===== LOADING ===== */
-  .loading-bar {
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    margin-bottom: 16px;
-    border-radius: 1px;
-  }
+  .loading-bar { height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); background-size: 200% 100%; animation: shimmer 1.5s infinite; margin-bottom: 16px; border-radius: 1px; }
+  @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+  .loading-text { text-align: center; color: var(--text-muted); font-size: 13px; font-weight: 600; letter-spacing: 1px; padding: 20px; }
 
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  }
-
-  .loading-text {
-    text-align: center;
-    color: var(--text-muted);
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    padding: 20px;
-  }
-
-  /* ===== TOAST ===== */
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 20px;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    z-index: 1000;
-    transition: transform 0.3s ease;
-    white-space: nowrap;
-  }
-
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 20px; font-size: 13px; font-weight: 700; letter-spacing: 1px; z-index: 1000; transition: transform 0.3s ease; white-space: nowrap; }
   .toast.show { transform: translateX(-50%) translateY(0); }
   .toast.success { border-color: var(--tcg); color: var(--tcg); }
   .toast.error { border-color: #ef4444; color: #ef4444; }
 
-  /* Scrollable list */
-  .result-list-scroll {
-    max-height: 400px;
-    overflow-y: auto;
-  }
-
+  .result-list-scroll { max-height: 400px; overflow-y: auto; }
   .result-list-scroll::-webkit-scrollbar { width: 4px; }
   .result-list-scroll::-webkit-scrollbar-track { background: transparent; }
   .result-list-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-  /* Condition selector in triage */
-  .condition-select {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 6px 10px;
-    color: var(--text);
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
+  .condition-select { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
   .condition-select:focus { outline: none; border-color: var(--accent); }
 
-  .card-controls {
-    padding: 0 20px 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .card-controls label {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
+  .card-controls { padding: 0 20px 16px; display: flex; align-items: center; gap: 10px; }
+  .card-controls label { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); }
 </style>
 </head>
 <body>
@@ -819,20 +604,16 @@
       </div>
       <br>
       <p style="font-size: 12px; color: var(--text-muted); line-height: 1.6;">
-        Logic: <span style="color: var(--grade)">Grade</span> ≥ Grade threshold &nbsp;|&nbsp; 
-        <span style="color: var(--ebay)">eBay</span> ≥ eBay threshold &nbsp;|&nbsp; 
-        <span style="color: var(--tcg)">TCGplayer</span> ≥ TCG threshold &nbsp;|&nbsp; 
+        Logic: <span style="color: var(--grade)">Grade</span> ≥ Grade threshold &nbsp;|&nbsp;
+        <span style="color: var(--ebay)">eBay</span> ≥ eBay threshold &nbsp;|&nbsp;
+        <span style="color: var(--tcg)">TCGplayer</span> ≥ TCG threshold &nbsp;|&nbsp;
         <span style="color: var(--bulk)">Bulk</span> below TCG threshold
       </p>
     </div>
 
     <br>
-    <button class="btn btn-primary" onclick="loadDemo()" style="margin-right: 8px;">
-      🎴 Load Demo Cards
-    </button>
-    <button class="btn" onclick="clearAll()">
-      Clear
-    </button>
+    <button class="btn btn-primary" onclick="loadDemo()" style="margin-right: 8px;">🎴 Load Demo Cards</button>
+    <button class="btn" onclick="clearAll()">Clear</button>
   </div>
 
   <!-- TRIAGE PANEL -->
@@ -845,7 +626,12 @@
     <div id="triage-content" style="display:none">
       <div class="triage-header">
         <span class="progress-text" id="progress-label">0 / 0</span>
-        <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+        <div class="slider-track">
+          <div class="slider-rail"><div class="slider-fill" id="slider-fill" style="width:0%"></div></div>
+          <input type="range" class="position-slider" id="position-slider" min="0" value="0" step="1"
+            oninput="sliderMoved(this.value)" onchange="sliderMoved(this.value)">
+        </div>
+        <span class="slider-hint" id="slider-hint">—</span>
         <button class="btn btn-sm" onclick="skipCard()">Skip →</button>
       </div>
 
@@ -887,15 +673,13 @@
           </div>
         </div>
 
-        <!-- eBay Sold Comps Button -->
-        <div style="margin: 8px 0;">
+        <div style="margin: 0 20px 12px;">
           <a id="ebay-sold-link" href="#" target="_blank"
             style="display:block; text-align:center; background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.3); border-radius: 8px; padding: 10px; color: #3b82f6; font-size: 13px; font-weight: 700; text-decoration: none; letter-spacing: 0.5px;">
             🛒 See Sold Listings on eBay
           </a>
         </div>
 
-        <!-- Format Legality -->
         <div class="format-legality" id="format-legality-section">
           <div class="format-legality-label">Format Legality</div>
           <div class="format-grid" id="format-grid"></div>
@@ -907,21 +691,11 @@
       </div>
 
       <div class="decision-buttons">
-        <button class="btn-decision btn-grade" onclick="decide('grade')">
-          <span class="icon">💎</span>Grade
-        </button>
-        <button class="btn-decision btn-ebay" onclick="decide('ebay')">
-          <span class="icon">🛒</span>eBay
-        </button>
-        <button class="btn-decision btn-tcg" onclick="decide('tcg')">
-          <span class="icon">🏪</span>TCGplayer
-        </button>
-        <button class="btn-decision btn-bulk" onclick="decide('bulk')">
-          <span class="icon">📦</span>Bulk
-        </button>
-        <button class="btn-decision btn-damaged" onclick="decide('damaged')">
-          <span class="icon">🗑</span>Damaged
-        </button>
+        <button class="btn-decision btn-grade" onclick="decide('grade')"><span class="icon">💎</span>Grade</button>
+        <button class="btn-decision btn-ebay" onclick="decide('ebay')"><span class="icon">🛒</span>eBay</button>
+        <button class="btn-decision btn-tcg" onclick="decide('tcg')"><span class="icon">🏪</span>TCGplayer</button>
+        <button class="btn-decision btn-bulk" onclick="decide('bulk')"><span class="icon">📦</span>Bulk</button>
+        <button class="btn-decision btn-damaged" onclick="decide('damaged')"><span class="icon">🗑</span>Damaged</button>
       </div>
 
       <div class="nav-buttons">
@@ -1007,14 +781,23 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ===== STATE =====
 let allCards = [];
 let currentIndex = 0;
-let decisions = {}; // scryfallId/name -> { bucket, price, foilPrice, name, set }
+let decisions = {};
 let priceCache = {};
 let activeFilter = 'all';
 
-// ===== TAB SWITCHING =====
+// Alpha sort by card name
+function alphaSort(cards) {
+  return [...cards].sort((a, b) => {
+    const nameA = (a.name || '').toLowerCase().replace(/^the\s+/i, '');
+    const nameB = (b.name || '').toLowerCase().replace(/^the\s+/i, '');
+    if (nameA < nameB) return -1;
+    if (nameA > nameB) return 1;
+    return 0;
+  });
+}
+
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach((t, i) => {
     t.classList.toggle('active', ['import','triage','results'][i] === name);
@@ -1025,7 +808,6 @@ function switchTab(name) {
   if (name === 'results') renderResults();
 }
 
-// ===== CSV PARSING =====
 function handleFileSelect(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -1037,7 +819,6 @@ function handleFileSelect(e) {
 function parseCSV(text) {
   const lines = text.split('\n').filter(l => l.trim());
   if (lines.length < 2) { showToast('CSV appears empty', 'error'); return; }
-  
   const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim().toLowerCase());
   const cards = [];
 
@@ -1046,7 +827,6 @@ function parseCSV(text) {
     if (row.length < 2) continue;
     const obj = {};
     headers.forEach((h, idx) => obj[h] = (row[idx] || '').replace(/"/g, '').trim());
-    
     const name = obj['name'] || obj['card name'] || obj['cardname'] || '';
     const set = obj['set code'] || obj['set name'] || obj['setcode'] || obj['set'] || '';
     const scryfallId = obj['scryfall id'] || obj['scryfallid'] || '';
@@ -1054,25 +834,20 @@ function parseCSV(text) {
     const foil = obj['foil'] || '';
     const rarity = obj['rarity'] || '';
     const qty = parseInt(obj['quantity'] || obj['qty'] || '1') || 1;
-    
-    if (name) {
-      cards.push({ name, set, scryfallId, condition, foil: foil === 'foil' || foil === 'true', rarity, qty, raw: obj });
-    }
+    if (name) cards.push({ name, set, scryfallId, condition, foil: foil === 'foil' || foil === 'true', rarity, qty, raw: obj });
   }
 
   if (cards.length === 0) { showToast('No cards found in CSV', 'error'); return; }
-  
-  allCards = cards;
-  currentIndex = 0;
-  decisions = {};
+  allCards = alphaSort(cards);
+  currentIndex = 0; decisions = {};
   updateStats();
+  updateSlider();
   showToast(`Loaded ${cards.length} cards`, 'success');
   switchTab('triage');
 }
 
 function parseCSVRow(line) {
-  const result = [];
-  let cur = '', inQuote = false;
+  const result = []; let cur = '', inQuote = false;
   for (let c of line) {
     if (c === '"') { inQuote = !inQuote; }
     else if (c === ',' && !inQuote) { result.push(cur); cur = ''; }
@@ -1082,9 +857,8 @@ function parseCSVRow(line) {
   return result;
 }
 
-// ===== DEMO DATA =====
 function loadDemo() {
-  allCards = [
+  const raw = [
     { name: 'Sheoldred, the Apocalypse', set: 'DMU', scryfallId: '', condition: 'NM', foil: false, rarity: 'mythic', qty: 1 },
     { name: 'Black Lotus', set: 'LEA', scryfallId: '', condition: 'HP', foil: false, rarity: 'rare', qty: 1 },
     { name: 'Force of Will', set: 'ALL', scryfallId: '', condition: 'LP', foil: false, rarity: 'uncommon', qty: 2 },
@@ -1094,23 +868,21 @@ function loadDemo() {
     { name: 'Brainstorm', set: 'ICE', scryfallId: '', condition: 'NM', foil: false, rarity: 'common', qty: 4 },
     { name: 'Sol Ring', set: '1ED', scryfallId: '', condition: 'MP', foil: false, rarity: 'uncommon', qty: 1 },
   ];
-  currentIndex = 0;
-  decisions = {};
+  allCards = alphaSort(raw);
+  currentIndex = 0; decisions = {};
   updateStats();
+  updateSlider();
   showToast(`Loaded ${allCards.length} demo cards`, 'success');
   switchTab('triage');
 }
 
 function clearAll() {
-  allCards = [];
-  decisions = {};
-  currentIndex = 0;
-  priceCache = {};
+  allCards = []; decisions = {}; currentIndex = 0; priceCache = {};
   updateStats();
+  updateSlider();
   showToast('Cleared', 'success');
 }
 
-// ===== TRIAGE =====
 async function initTriage() {
   if (allCards.length === 0) {
     document.getElementById('triage-content').style.display = 'none';
@@ -1119,11 +891,10 @@ async function initTriage() {
     return;
   }
   document.getElementById('triage-empty').style.display = 'none';
-  // Find first undecided card
-  while (currentIndex < allCards.length && decisions[cardKey(allCards[currentIndex])]) {
-    currentIndex++;
+  if (decisions[cardKey(allCards[currentIndex])]) {
+    const firstUndecided = allCards.findIndex(c => !decisions[cardKey(c)]);
+    if (firstUndecided !== -1) currentIndex = firstUndecided;
   }
-  if (currentIndex >= allCards.length) currentIndex = 0;
   await showCard(currentIndex);
 }
 
@@ -1131,27 +902,46 @@ function cardKey(card) {
   return card.scryfallId || (card.name + '|' + card.set);
 }
 
-async function showCard(idx) {
-  if (idx >= allCards.length) {
-    showToast('All cards triaged! Check Results tab.', 'success');
-    switchTab('results');
-    return;
+// Called when slider is dragged
+async function sliderMoved(val) {
+  const idx = parseInt(val);
+  if (idx >= 0 && idx < allCards.length) {
+    currentIndex = idx;
+    await showCard(currentIndex);
   }
+}
 
+function updateSlider() {
+  const slider = document.getElementById('position-slider');
+  const fill = document.getElementById('slider-fill');
+  const hint = document.getElementById('slider-hint');
+  const total = allCards.length;
+  if (!slider) return;
+  slider.max = Math.max(0, total - 1);
+  slider.value = currentIndex;
+  fill.style.width = total > 1 ? (currentIndex / (total - 1) * 100) + '%' : '0%';
+  if (total > 0 && allCards[currentIndex]) {
+    const n = allCards[currentIndex].name.replace(/^the\s+/i, '');
+    hint.textContent = n.charAt(0).toUpperCase();
+  } else {
+    hint.textContent = '—';
+  }
+}
+
+async function showCard(idx) {
+  if (idx >= allCards.length || idx < 0) return;
   const card = allCards[idx];
   document.getElementById('triage-content').style.display = 'none';
   document.getElementById('triage-loading').style.display = 'block';
-  
   updateProgress();
+  updateSlider();
 
-  // Set condition from card data
   const condEl = document.getElementById('card-condition');
-  const condMap = { 'NM': 'NM', 'LP': 'LP', 'MP': 'MP', 'HP': 'HP', 'DMG': 'DMG', 
-                    'Near Mint': 'NM', 'Lightly Played': 'LP', 'Moderately Played': 'MP', 
+  const condMap = { 'NM': 'NM', 'LP': 'LP', 'MP': 'MP', 'HP': 'HP', 'DMG': 'DMG',
+                    'Near Mint': 'NM', 'Lightly Played': 'LP', 'Moderately Played': 'MP',
                     'Heavily Played': 'HP', 'Damaged': 'DMG' };
   condEl.value = condMap[card.condition] || 'NM';
 
-  // Fetch price
   const key = cardKey(card);
   let data = priceCache[key];
   if (!data) {
@@ -1162,13 +952,11 @@ async function showCard(idx) {
   document.getElementById('triage-loading').style.display = 'none';
   document.getElementById('triage-content').style.display = 'block';
 
-  // Populate UI
   document.getElementById('card-name').textContent = card.name;
-  document.getElementById('card-set').textContent = data ? 
-    `${data.set_name || card.set} — ${data.collector_number ? '#' + data.collector_number : ''}` : 
+  document.getElementById('card-set').textContent = data ?
+    `${data.set_name || card.set} — ${data.collector_number ? '#' + data.collector_number : ''}` :
     card.set;
 
-  // Meta tags
   const metaEl = document.getElementById('card-meta');
   metaEl.innerHTML = '';
   const rarity = (data?.rarity || card.rarity || '').toLowerCase();
@@ -1193,7 +981,6 @@ async function showCard(idx) {
     metaEl.appendChild(tag);
   }
 
-  // Image
   const imgContainer = document.getElementById('card-image-container');
   if (data?.image_uris?.small || data?.card_faces?.[0]?.image_uris?.small) {
     const imgUrl = data.image_uris?.small || data.card_faces[0].image_uris.small;
@@ -1202,12 +989,9 @@ async function showCard(idx) {
     imgContainer.innerHTML = '<div class="card-image-placeholder">🃏</div>';
   }
 
-  // Prices
   const usd = data?.prices?.usd ? parseFloat(data.prices.usd) : null;
   const usdFoil = data?.prices?.usd_foil ? parseFloat(data.prices.usd_foil) : null;
   const usdEtched = data?.prices?.usd_etched ? parseFloat(data.prices.usd_etched) : null;
-
-  // Fix: foil card with no foil price = Manual Check, never silently use non-foil price
   const foilMissing = card.foil && !usdFoil && !usdEtched;
   const activePrice = card.foil ? (usdFoil || usdEtched || null) : usd;
 
@@ -1216,38 +1000,26 @@ async function showCard(idx) {
   document.getElementById('price-foil').textContent = usdFoil ? `$${usdFoil.toFixed(2)}` : (usdEtched ? `$${usdEtched.toFixed(2)} (etched)` : '—');
   document.getElementById('price-foil').className = 'value' + (!usdFoil && !usdEtched ? ' na' : '');
 
-  if (card._foilMissing || (!activePrice && !foilMissing)) {
-    const noPrice = !activePrice && !foilMissing;
+  if (foilMissing || !activePrice) {
     document.getElementById('price-suggested').textContent = '⚠ Manual Check';
     document.getElementById('price-suggested').style.color = '#f97316';
     document.getElementById('price-suggested').style.fontSize = '14px';
-    if (noPrice) {
-      document.getElementById('suggestion-banner').className = 'suggestion ebay';
-      document.getElementById('suggestion-text').textContent = '💡 Suggested: Manual Check — no price data found, look up before deciding';
-    }
   } else {
     document.getElementById('price-suggested').textContent = activePrice ? `$${activePrice.toFixed(2)}` : '—';
     document.getElementById('price-suggested').style.color = '';
     document.getElementById('price-suggested').style.fontSize = '';
   }
 
-  // Format legality
   const formatGrid = document.getElementById('format-grid');
   const priorityFormats = ['standard','pioneer','modern','legacy','vintage','commander','pauper','historic','explorer'];
-  const formatLabels = {
-    standard: 'Standard', pioneer: 'Pioneer', modern: 'Modern',
-    legacy: 'Legacy', vintage: 'Vintage', commander: 'Commander',
-    pauper: 'Pauper', historic: 'Historic', explorer: 'Explorer'
-  };
+  const formatLabels = { standard: 'Standard', pioneer: 'Pioneer', modern: 'Modern', legacy: 'Legacy', vintage: 'Vintage', commander: 'Commander', pauper: 'Pauper', historic: 'Historic', explorer: 'Explorer' };
 
   if (data?.legalities) {
     formatGrid.innerHTML = priorityFormats.map(fmt => {
       const status = data.legalities[fmt] || 'not_legal';
-      if (status === 'not_legal') return ''; // hide not_legal to keep it clean
+      if (status === 'not_legal') return '';
       return `<span class="format-tag ${status}">${formatLabels[fmt] || fmt}${status === 'restricted' ? ' (R)' : ''}${status === 'banned' ? ' ✕' : ''}</span>`;
     }).join('') || '<span style="font-size:12px;color:var(--text-dim)">No format data</span>';
-
-    // Also show banned/restricted ones even if not in priority list
     const bannedOrRestricted = Object.entries(data.legalities)
       .filter(([fmt, status]) => (status === 'banned' || status === 'restricted') && !priorityFormats.includes(fmt));
     if (bannedOrRestricted.length > 0) {
@@ -1260,44 +1032,18 @@ async function showCard(idx) {
     document.getElementById('format-legality-section').style.display = 'none';
   }
 
-  // Suggestion
-  const thresh = {
-    grade: parseFloat(document.getElementById('thresh-grade').value) || 50,
-    ebay: parseFloat(document.getElementById('thresh-ebay').value) || 15,
-    tcg: parseFloat(document.getElementById('thresh-tcg').value) || 1,
-  };
-
-  let bucket = 'bulk', bucketLabel = 'Bulk — accumulate for shows/lots';
-  if (foilMissing) { bucket = 'ebay'; bucketLabel = 'Manual Check — foil price unavailable, look up before deciding'; }
-  else if (condEl.value === 'DMG') { bucket = 'damaged'; bucketLabel = 'Damaged — not worth selling'; }
-  else if (activePrice >= thresh.grade) { bucket = 'grade'; bucketLabel = `Grade — raw value $${activePrice?.toFixed(2)}, graded could be significantly higher`; }
-  else if (activePrice >= thresh.ebay) { bucket = 'ebay'; bucketLabel = `List on eBay — $${activePrice?.toFixed(2)} is worth individual listing effort`; }
-  else if (activePrice >= thresh.tcg) { bucket = 'tcg'; bucketLabel = `TCGplayer — $${activePrice?.toFixed(2)}, bag it and shelf it`; }
-  
-  const bannerEl = document.getElementById('suggestion-banner');
-  bannerEl.className = 'suggestion ' + bucket;
-  document.getElementById('suggestion-text').textContent = '💡 Suggested: ' + bucketLabel;
-
-  // Highlight existing decision if any
-  document.querySelectorAll('.btn-decision').forEach(b => b.classList.remove('selected'));
-  const existing = decisions[key];
-  if (existing) {
-    document.querySelector('.btn-' + existing.bucket)?.classList.add('selected');
-  }
-
-  // Store price for later
+  card._basePrice = activePrice;
   card._price = activePrice;
-  card._basePrice = activePrice; // Store NM base price for condition adjustments
   card._foilMissing = foilMissing;
   card._data = data;
 
-  // Update eBay sold link for this card
   updateEbayLink(card.name);
-
-  // Apply condition multiplier to initial display
   updateConditionPrice();
 
-  // Background prefetch next batch while user is triaging current card
+  document.querySelectorAll('.btn-decision').forEach(b => b.classList.remove('selected'));
+  const existing = decisions[key];
+  if (existing) document.querySelector('.btn-' + existing.bucket)?.classList.add('selected');
+
   prefetchBatch(currentIndex + 1, 75);
 }
 
@@ -1308,26 +1054,19 @@ async function fetchScryfall(card) {
     if (card.scryfallId) {
       url = `https://api.scryfall.com/cards/${card.scryfallId}`;
     } else {
-      const query = encodeURIComponent(`!"${card.name}"`);
-      const setParam = card.set ? `&set=${card.set.toLowerCase()}` : '';
       url = `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(card.name)}${card.set ? '&set=' + card.set.toLowerCase() : ''}`;
     }
-    
-    await new Promise(r => setTimeout(r, 100)); // Rate limit courtesy
+    await new Promise(r => setTimeout(r, 100));
     const res = await fetch(url);
     if (!res.ok) {
-      // Try fuzzy
       const fuzzy = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(card.name)}`);
       if (!fuzzy.ok) return null;
       return await fuzzy.json();
     }
     return await res.json();
-  } catch(e) {
-    return null;
-  }
+  } catch(e) { return null; }
 }
 
-// ===== EBAY LINK =====
 function updateEbayLink(cardName) {
   const query = encodeURIComponent(`"${cardName}" mtg magic`);
   const url = `https://www.ebay.com/sch/i.html?_nkw=${query}&LH_Complete=1&LH_Sold=1&_sop=13`;
@@ -1338,7 +1077,6 @@ function updateEbayLink(cardName) {
 function updateConditionPrice() {
   const card = allCards[currentIndex];
   if (!card || card._basePrice == null) {
-    // No price data at all
     document.getElementById('price-suggested').textContent = '⚠ Manual Check';
     document.getElementById('price-suggested').style.color = '#f97316';
     document.getElementById('price-suggested').style.fontSize = '14px';
@@ -1352,7 +1090,6 @@ function updateConditionPrice() {
   const multiplier = multipliers[condition] || 1.0;
   const adjustedPrice = card._basePrice * multiplier;
 
-  // Update suggested price display
   const suggestedEl = document.getElementById('price-suggested');
   if (card._foilMissing) {
     suggestedEl.textContent = '⚠ Manual Check';
@@ -1364,10 +1101,8 @@ function updateConditionPrice() {
     suggestedEl.style.fontSize = '';
   }
 
-  // Update card's current price
   card._price = adjustedPrice;
 
-  // Recalculate bucket
   const thresh = {
     grade: parseFloat(document.getElementById('thresh-grade').value) || 50,
     ebay: parseFloat(document.getElementById('thresh-ebay').value) || 15,
@@ -1382,11 +1117,9 @@ function updateConditionPrice() {
   else if (adjustedPrice >= thresh.tcg) { bucket = 'tcg'; bucketLabel = `TCGplayer — $${adjustedPrice.toFixed(2)} (${condition}), bag it and shelf it`; }
   else { bucketLabel = `Bulk — $${adjustedPrice.toFixed(2)} (${condition}), accumulate for shows/lots`; }
 
-  const bannerEl = document.getElementById('suggestion-banner');
-  bannerEl.className = 'suggestion ' + bucket;
+  document.getElementById('suggestion-banner').className = 'suggestion ' + bucket;
   document.getElementById('suggestion-text').textContent = '💡 Suggested: ' + bucketLabel;
 }
-
 
 async function prefetchBatch(startIdx, batchSize = 75) {
   const toFetch = [];
@@ -1396,13 +1129,11 @@ async function prefetchBatch(startIdx, batchSize = 75) {
     if (!priceCache[key]) toFetch.push({ idx: i, card });
   }
   if (toFetch.length === 0) return;
-
   const identifiers = toFetch.map(({ card }) => {
     if (card.scryfallId) return { id: card.scryfallId };
     if (card.set) return { name: card.name, set: card.set.toLowerCase() };
     return { name: card.name };
   });
-
   try {
     await new Promise(r => setTimeout(r, 100));
     const res = await fetch('https://api.scryfall.com/cards/collection', {
@@ -1414,28 +1145,23 @@ async function prefetchBatch(startIdx, batchSize = 75) {
     const data = await res.json();
     const results = data.data || [];
     results.forEach(cardData => {
-      // Match back to our cards by name + set
       const match = toFetch.find(({ card }) =>
         card.name.toLowerCase() === (cardData.name || '').toLowerCase() ||
         card.scryfallId === cardData.id
       );
-      if (match) {
-        priceCache[cardKey(match.card)] = cardData;
-      }
+      if (match) priceCache[cardKey(match.card)] = cardData;
     });
-  } catch(e) {
-    // Silent fail — individual fetches will handle misses
-  }
+  } catch(e) {}
 }
 
 function decide(bucket) {
   if (allCards.length === 0) return;
   const card = allCards[currentIndex];
   const key = cardKey(card);
-  decisions[key] = { 
-    bucket, 
-    price: card._price, 
-    name: card.name, 
+  decisions[key] = {
+    bucket,
+    price: card._price,
+    name: card.name,
     set: card.set,
     rarity: card._data?.rarity || card.rarity,
     condition: document.getElementById('card-condition').value,
@@ -1443,46 +1169,29 @@ function decide(bucket) {
     qty: card.qty,
     legalities: card._data?.legalities || {}
   };
-  
   document.querySelectorAll('.btn-decision').forEach(b => b.classList.remove('selected'));
   document.querySelector('.btn-' + bucket)?.classList.add('selected');
-  
   updateStats();
-  
-  // Auto-advance after brief delay
   setTimeout(() => nextCard(), 300);
 }
 
 async function nextCard() {
-  currentIndex++;
-  // Skip already-decided
-  while (currentIndex < allCards.length && decisions[cardKey(allCards[currentIndex])]) {
+  if (currentIndex < allCards.length - 1) {
     currentIndex++;
-  }
-  if (currentIndex >= allCards.length) {
-    // Find any undecided
-    currentIndex = allCards.findIndex(c => !decisions[cardKey(c)]);
-    if (currentIndex === -1) {
-      showToast('All cards triaged!', 'success');
-      switchTab('results');
-      return;
-    }
+  } else {
+    const firstUndecided = allCards.findIndex(c => !decisions[cardKey(c)]);
+    if (firstUndecided === -1) { showToast('All cards triaged!', 'success'); switchTab('results'); return; }
+    currentIndex = firstUndecided;
   }
   await showCard(currentIndex);
 }
 
 async function prevCard() {
-  if (currentIndex > 0) {
-    currentIndex--;
-    await showCard(currentIndex);
-  }
+  if (currentIndex > 0) { currentIndex--; await showCard(currentIndex); }
 }
 
-function skipCard() {
-  nextCard();
-}
+function skipCard() { nextCard(); }
 
-// ===== RESULTS =====
 function renderResults() {
   const decided = Object.values(decisions);
   if (decided.length === 0) {
@@ -1492,15 +1201,12 @@ function renderResults() {
   }
   document.getElementById('results-empty').style.display = 'none';
   document.getElementById('results-content').style.display = 'block';
-
-  const buckets = ['grade','ebay','tcg','bulk','damaged'];
-  buckets.forEach(b => {
+  ['grade','ebay','tcg','bulk','damaged'].forEach(b => {
     const cards = decided.filter(d => d.bucket === b);
     const total = cards.reduce((sum, c) => sum + (c.price || 0) * (c.qty || 1), 0);
     document.getElementById('count-' + b).textContent = cards.length;
     document.getElementById('val-' + b).textContent = total > 0 ? `~$${total.toFixed(0)}` : '—';
   });
-
   filterResults(activeFilter);
 }
 
@@ -1508,7 +1214,7 @@ function filterResults(filter) {
   activeFilter = filter;
   const decided = Object.values(decisions);
   const filtered = filter === 'all' ? decided : decided.filter(d => d.bucket === filter);
-  
+
   document.querySelectorAll('.filter-tab').forEach(t => {
     t.classList.toggle('active', t.textContent.toLowerCase().includes(filter) || (filter === 'all' && t.textContent === 'All'));
   });
@@ -1517,12 +1223,17 @@ function filterResults(filter) {
   document.getElementById('results-filter-label').textContent = labels[filter] || filter;
 
   const body = document.getElementById('results-list-body');
-  if (filtered.length === 0) {
-    body.innerHTML = '<div class="loading-text">No cards in this category yet.</div>';
-    return;
-  }
+  if (filtered.length === 0) { body.innerHTML = '<div class="loading-text">No cards in this category yet.</div>'; return; }
 
-  const sorted = [...filtered].sort((a, b) => (b.price || 0) - (a.price || 0));
+  // Alpha sort results
+  const sorted = [...filtered].sort((a, b) => {
+    const nameA = (a.name || '').toLowerCase().replace(/^the\s+/i, '');
+    const nameB = (b.name || '').toLowerCase().replace(/^the\s+/i, '');
+    if (nameA < nameB) return -1;
+    if (nameA > nameB) return 1;
+    return 0;
+  });
+
   body.innerHTML = sorted.map(d => `
     <div class="result-item">
       <div class="bucket-dot ${d.bucket}"></div>
@@ -1535,18 +1246,26 @@ function filterResults(filter) {
   `).join('');
 }
 
-// ===== EXPORT =====
 function exportCSV(filter) {
   const decided = Object.values(decisions);
   const filtered = filter === 'all' ? decided : decided.filter(d => d.bucket === filter);
   if (filtered.length === 0) { showToast('No cards in this category', 'error'); return; }
-  
+
+  // Alpha sort exports
+  const sorted = [...filtered].sort((a, b) => {
+    const nameA = (a.name || '').toLowerCase().replace(/^the\s+/i, '');
+    const nameB = (b.name || '').toLowerCase().replace(/^the\s+/i, '');
+    if (nameA < nameB) return -1;
+    if (nameA > nameB) return 1;
+    return 0;
+  });
+
   const headers = 'Name,Set,Condition,Foil,Quantity,Price,Bucket,Standard,Pioneer,Modern,Legacy,Vintage,Commander,Pauper';
-  const rows = filtered.map(d => {
+  const rows = sorted.map(d => {
     const l = d.legalities || {};
     return `"${d.name}","${d.set || ''}","${d.condition || 'NM'}","${d.foil ? 'Yes' : 'No'}","${d.qty || 1}","${d.price ? d.price.toFixed(2) : ''}","${d.bucket}","${l.standard||''}","${l.pioneer||''}","${l.modern||''}","${l.legacy||''}","${l.vintage||''}","${l.commander||''}","${l.pauper||''}"`;
   });
-  
+
   const csv = [headers, ...rows].join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
@@ -1555,56 +1274,42 @@ function exportCSV(filter) {
   a.download = `triage-${filter}-${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
   URL.revokeObjectURL(url);
-  showToast(`Exported ${filtered.length} cards`, 'success');
+  showToast(`Exported ${sorted.length} cards`, 'success');
 }
 
-// ===== UTILS =====
 function updateProgress() {
   const total = allCards.length;
   const done = Object.keys(decisions).length;
-  const remaining = total - done;
-  const pct = total > 0 ? (done / total * 100) : 0;
-  
-  document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('progress-label').textContent = `${done} / ${total}`;
+  document.getElementById('progress-label').textContent = `${currentIndex + 1} / ${total}`;
 }
 
 function updateStats() {
   const done = Object.keys(decisions).length;
-  const remaining = allCards.length - done;
   document.getElementById('stat-processed').textContent = done;
-  document.getElementById('stat-remaining').textContent = allCards.length > 0 ? remaining : '—';
+  document.getElementById('stat-remaining').textContent = allCards.length > 0 ? (allCards.length - done) : '—';
 }
 
 function showToast(msg, type = '') {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show ' + type;
+  t.textContent = msg; t.className = 'toast show ' + type;
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// ===== DRAG & DROP =====
 const dropZone = document.getElementById('drop-zone');
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
 dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropZone.classList.remove('drag-over');
+  e.preventDefault(); dropZone.classList.remove('drag-over');
   const file = e.dataTransfer.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = ev => parseCSV(ev.target.result);
-    reader.readAsText(file);
-  }
+  if (file) { const reader = new FileReader(); reader.onload = ev => parseCSV(ev.target.result); reader.readAsText(file); }
 });
-
-// ===== INIT =====
 </script>
+
 <!-- Comics Insanity Promo Footer -->
 <div style="text-align:center; padding: 20px 16px; margin-top: 16px; border-top: 1px solid #252d45; background: #111520;">
   <p style="font-family: 'Rajdhani', sans-serif; font-size: 13px; color: #6b7a99; letter-spacing: 1px;">
     📘 <strong style="color: #c9a84c;">Want a complete bulk decision framework?</strong><br>
-    <a href="https://comicsinsanity.gumroad.com/l/pqztus" target="_blank" 
+    <a href="https://comicsinsanity.gumroad.com/l/pqztus" target="_blank"
        style="color: #c9a84c; text-decoration: none; font-weight: 700; letter-spacing: 1px;">
        TCG SELLER'S BULK DECISION GUIDE — $15
     </a>
