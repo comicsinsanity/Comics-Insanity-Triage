@@ -58,10 +58,36 @@
   .threshold-item label { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
   .threshold-item input { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 600; width: 100%; transition: border-color 0.2s; }
   .threshold-item input:focus { outline: none; border-color: var(--accent); }
-  .triage-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-  .progress-bar { flex: 1; height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; margin: 0 16px; }
-  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; transition: width 0.4s ease; }
-  .progress-text { font-size: 12px; font-weight: 700; color: var(--text-muted); white-space: nowrap; letter-spacing: 1px; }
+
+  /* TRIAGE HEADER — slider area */
+  .triage-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 10px; }
+  .progress-text { font-size: 12px; font-weight: 700; color: var(--text-muted); white-space: nowrap; letter-spacing: 1px; min-width: 52px; }
+
+  /* Slider track replaces progress bar */
+  .slider-track { flex: 1; position: relative; height: 28px; display: flex; align-items: center; }
+  .slider-rail { position: absolute; left: 0; right: 0; height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; pointer-events: none; }
+  .slider-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; transition: width 0.2s ease; }
+  .position-slider {
+    position: absolute; left: 0; right: 0;
+    width: 100%; height: 28px;
+    -webkit-appearance: none; appearance: none;
+    background: transparent; cursor: pointer; margin: 0;
+  }
+  .position-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--accent); border: 2px solid var(--accent2);
+    cursor: pointer; box-shadow: 0 0 6px rgba(201,168,76,0.5);
+    transition: transform 0.15s;
+  }
+  .position-slider:active::-webkit-slider-thumb { transform: scale(1.25); }
+  .position-slider::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--accent); border: 2px solid var(--accent2);
+    cursor: pointer; box-shadow: 0 0 6px rgba(201,168,76,0.5);
+  }
+  .slider-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; color: var(--text-dim); text-align: center; margin-top: 2px; }
+
   .card-display { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 16px; position: relative; }
   .card-display::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), transparent); }
   .card-main { padding: 20px; display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start; }
@@ -156,6 +182,9 @@
   .notes-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 7px 12px; color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 13px; transition: border-color 0.2s; }
   .notes-input:focus { outline: none; border-color: var(--accent); }
   .notes-input::placeholder { color: var(--text-dim); }
+
+  /* Jump-to letter hint */
+  .slider-hint { font-size: 11px; color: var(--accent); font-weight: 700; letter-spacing: 2px; text-align: center; min-width: 32px; }
 </style>
 </head>
 <body>
@@ -225,7 +254,7 @@
     <div class="settings-card" style="margin-top:12px;background:rgba(201,168,76,0.04);border-color:rgba(201,168,76,0.2);">
       <h3 style="color:rgba(201,168,76,0.9)">📊 GoCollect Pricing</h3>
       <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">
-        GoCollect pricing uses the link-out button on each comic. Click <b style="color:var(--accent)">📊 GoCollect</b> to look up current FMV for any issue directly on their site. Live API pricing requires a server and is not available in this version.
+        GoCollect pricing uses the link-out button on each comic. Click <b style="color:var(--accent)">📊 GoCollect</b> to look up current FMV for any issue directly on their site.
       </p>
     </div>
 
@@ -244,7 +273,12 @@
     <div id="triage-content" style="display:none">
       <div class="triage-header">
         <span class="progress-text" id="progress-label">0 / 0</span>
-        <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+        <div class="slider-track">
+          <div class="slider-rail"><div class="slider-fill" id="slider-fill" style="width:0%"></div></div>
+          <input type="range" class="position-slider" id="position-slider" min="0" value="0" step="1"
+            oninput="sliderMoved(this.value)" onchange="sliderMoved(this.value)">
+        </div>
+        <span class="slider-hint" id="slider-hint">—</span>
         <button class="btn btn-sm" onclick="skipCard()">Skip →</button>
       </div>
 
@@ -418,29 +452,8 @@ let allComics = [];
 let currentIndex = 0;
 let decisions = {};
 let activeFilter = 'all';
-let gcToken = '';
-try { gcToken = localStorage.getItem('gc-token') || ''; } catch(e) { gcToken = ''; }
 
-function saveGCToken() {
-  const val = document.getElementById('gc-token-input').value.trim();
-  if (!val) { showToast('Paste a token first', 'error'); return; }
-  gcToken = val;
-  localStorage.setItem('gc-token', val);
-  document.getElementById('gc-token-input').value = '';
-  document.getElementById('gc-token-input').style.borderColor = 'var(--dollarbox)';
-  document.getElementById('gc-token-status').textContent = '✓ Token saved — GoCollect pricing active';
-  document.getElementById('gc-token-status').style.color = 'var(--dollarbox)';
-  showToast('GoCollect token saved', 'success');
-}
-
-function clearGCToken() {
-  gcToken = '';
-  localStorage.removeItem('gc-token');
-  document.getElementById('gc-token-input').value = '';
-  document.getElementById('gc-token-status').textContent = 'Token cleared';
-  document.getElementById('gc-token-status').style.color = 'var(--text-muted)';
-  showToast('Token cleared', 'success');
-}const CONDITION_MULTIPLIERS = {
+const CONDITION_MULTIPLIERS = {
   '10.0': 1.50, '9.8': 1.25, '9.6': 1.15, '9.4': 1.00,
   '9.2': 0.95, '9.0': 0.90, '8.5': 0.85, '8.0': 0.75,
   '7.5': 0.65, '7.0': 0.50, '6.5': 0.40, '6.0': 0.30,
@@ -458,6 +471,20 @@ const COND_MAP = {
   'Fair': '1.0', 'FR': '1.0',
   'Poor': '0.5', 'PR': '0.5'
 };
+
+// Alpha sort: sort by title, then by issue number numerically
+function alphaSort(comics) {
+  return [...comics].sort((a, b) => {
+    const titleA = (a.title || '').toLowerCase().replace(/^the\s+/i, '');
+    const titleB = (b.title || '').toLowerCase().replace(/^the\s+/i, '');
+    if (titleA < titleB) return -1;
+    if (titleA > titleB) return 1;
+    // Same title — sort by issue number numerically
+    const numA = parseFloat(a.itemNum) || 0;
+    const numB = parseFloat(b.itemNum) || 0;
+    return numA - numB;
+  });
+}
 
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', ['import','triage','results'][i] === name));
@@ -498,8 +525,10 @@ function parseCSV(text) {
     if (title && itemNum) comics.push({ title, itemNum, condition, qty, cost, printing, gradeNotes, description, writer, artist });
   }
   if (comics.length === 0) { showToast('No comics found in CSV', 'error'); return; }
-  allComics = comics; currentIndex = 0; decisions = {};
+  allComics = alphaSort(comics);
+  currentIndex = 0; decisions = {};
   updateStats();
+  updateSlider();
   showToast(`Loaded ${comics.length} comics`, 'success');
   switchTab('triage');
 }
@@ -516,7 +545,7 @@ function parseCSVRow(line) {
 }
 
 function loadDemo() {
-  allComics = [
+  const raw = [
     { title: 'Amazing Spider-Man', itemNum: '300', condition: '9.0', qty: 1, cost: 85, printing: '1st', gradeNotes: '', description: '1st app Venom (Eddie Brock)', writer: 'David Michelinie', artist: 'Todd McFarlane' },
     { title: 'X-Men', itemNum: '1', condition: '2.0', qty: 1, cost: 0, printing: '1st', gradeNotes: 'Spine split', description: '1st app X-Men, Magneto', writer: 'Stan Lee', artist: 'Jack Kirby' },
     { title: 'Batman', itemNum: '251', condition: '6.0', qty: 1, cost: 45, printing: '1st', gradeNotes: '', description: 'Classic Joker story, Neal Adams cover', writer: 'Dennis O\'Neil', artist: 'Neal Adams' },
@@ -526,8 +555,10 @@ function loadDemo() {
     { title: 'Green Lantern', itemNum: '76', condition: '4.0', qty: 1, cost: 30, printing: '1st', gradeNotes: 'Water stain back', description: 'Classic O\'Neil/Adams run begins', writer: 'Dennis O\'Neil', artist: 'Neal Adams' },
     { title: 'Iron Man', itemNum: '128', condition: '6.0', qty: 1, cost: 4, printing: '1st', gradeNotes: '', description: 'Demon in a Bottle storyline', writer: 'David Michelinie', artist: 'Bob Layton' },
   ];
+  allComics = alphaSort(raw);
   currentIndex = 0; decisions = {};
   updateStats();
+  updateSlider();
   showToast(`Loaded ${allComics.length} demo comics`, 'success');
   switchTab('triage');
 }
@@ -535,6 +566,7 @@ function loadDemo() {
 function clearAll() {
   allComics = []; decisions = {}; currentIndex = 0;
   updateStats();
+  updateSlider();
   showToast('Cleared', 'success');
 }
 
@@ -548,17 +580,48 @@ function initTriage() {
     return;
   }
   document.getElementById('triage-empty').style.display = 'none';
-  while (currentIndex < allComics.length && decisions[cardKey(allComics[currentIndex])]) currentIndex++;
-  if (currentIndex >= allComics.length) currentIndex = 0;
+  // Find first undecided if currentIndex already decided
+  if (decisions[cardKey(allComics[currentIndex])]) {
+    const firstUndecided = allComics.findIndex(c => !decisions[cardKey(c)]);
+    if (firstUndecided !== -1) currentIndex = firstUndecided;
+  }
   showComic(currentIndex);
 }
 
+// Called when slider is dragged
+function sliderMoved(val) {
+  const idx = parseInt(val);
+  if (idx >= 0 && idx < allComics.length) {
+    currentIndex = idx;
+    showComic(currentIndex);
+  }
+}
+
+function updateSlider() {
+  const slider = document.getElementById('position-slider');
+  const fill = document.getElementById('slider-fill');
+  const hint = document.getElementById('slider-hint');
+  const total = allComics.length;
+  if (!slider) return;
+  slider.max = Math.max(0, total - 1);
+  slider.value = currentIndex;
+  fill.style.width = total > 1 ? (currentIndex / (total - 1) * 100) + '%' : '0%';
+  // Show first letter of current title as hint
+  if (total > 0 && allComics[currentIndex]) {
+    const t = allComics[currentIndex].title.replace(/^the\s+/i, '');
+    hint.textContent = t.charAt(0).toUpperCase();
+  } else {
+    hint.textContent = '—';
+  }
+}
+
 function showComic(idx) {
-  if (idx >= allComics.length) { showToast('All comics triaged!', 'success'); switchTab('results'); return; }
+  if (idx >= allComics.length || idx < 0) return;
   const comic = allComics[idx];
   document.getElementById('triage-content').style.display = 'none';
   document.getElementById('triage-loading').style.display = 'block';
   updateProgress();
+  updateSlider();
 
   const condEl = document.getElementById('card-condition');
   condEl.value = COND_MAP[comic.condition] || comic.condition || '9.4';
@@ -689,16 +752,21 @@ function decide(bucket) {
 }
 
 function nextCard() {
-  currentIndex++;
-  while (currentIndex < allComics.length && decisions[cardKey(allComics[currentIndex])]) currentIndex++;
-  if (currentIndex >= allComics.length) {
-    currentIndex = allComics.findIndex(c => !decisions[cardKey(c)]);
-    if (currentIndex === -1) { showToast('All comics triaged!', 'success'); switchTab('results'); return; }
+  if (currentIndex < allComics.length - 1) {
+    currentIndex++;
+  } else {
+    // wrap to first undecided
+    const firstUndecided = allComics.findIndex(c => !decisions[cardKey(c)]);
+    if (firstUndecided === -1) { showToast('All comics triaged!', 'success'); switchTab('results'); return; }
+    currentIndex = firstUndecided;
   }
   showComic(currentIndex);
 }
 
-function prevCard() { if (currentIndex > 0) { currentIndex--; showComic(currentIndex); } }
+function prevCard() {
+  if (currentIndex > 0) { currentIndex--; showComic(currentIndex); }
+}
+
 function skipCard() { nextCard(); }
 
 function renderResults() {
@@ -732,7 +800,16 @@ function filterResults(filter) {
   document.getElementById('results-filter-label').textContent = labels[filter] || filter;
   const body = document.getElementById('results-list-body');
   if (filtered.length === 0) { body.innerHTML = '<div class="loading-text">No comics in this category yet.</div>'; return; }
-  const sorted = [...filtered].sort((a, b) => (b.price || 0) - (a.price || 0));
+
+  // Alpha sort results
+  const sorted = [...filtered].sort((a, b) => {
+    const titleA = (a.title || '').toLowerCase().replace(/^the\s+/i, '');
+    const titleB = (b.title || '').toLowerCase().replace(/^the\s+/i, '');
+    if (titleA < titleB) return -1;
+    if (titleA > titleB) return 1;
+    return (parseFloat(a.itemNum) || 0) - (parseFloat(b.itemNum) || 0);
+  });
+
   body.innerHTML = sorted.map(d => `
     <div class="result-item">
       <div class="bucket-dot ${d.bucket}"></div>
@@ -750,8 +827,18 @@ function exportCSV(filter) {
   const decided = Object.values(decisions);
   const filtered = filter === 'all' ? decided : decided.filter(d => d.bucket === filter);
   if (filtered.length === 0) { showToast('No comics in this category', 'error'); return; }
+
+  // Alpha sort exports
+  const sorted = [...filtered].sort((a, b) => {
+    const titleA = (a.title || '').toLowerCase().replace(/^the\s+/i, '');
+    const titleB = (b.title || '').toLowerCase().replace(/^the\s+/i, '');
+    if (titleA < titleB) return -1;
+    if (titleA > titleB) return 1;
+    return (parseFloat(a.itemNum) || 0) - (parseFloat(b.itemNum) || 0);
+  });
+
   const headers = 'Title,Issue,Printing,Grade,Quantity,Price,Bucket,Key Issue,Description,Notes,Writer,Artist';
-  const rows = filtered.map(d =>
+  const rows = sorted.map(d =>
     `"${d.title}","${d.itemNum}","${d.printing||''}","${d.condition||'9.4'}","${d.qty||1}","${d.price ? d.price.toFixed(2) : ''}","${d.bucket}","${d.isKey ? 'Yes' : 'No'}","${(d.description||'').replace(/"/g,"'")}","${(d.notes||'').replace(/"/g,"'")}","${d.writer||''}","${d.artist||''}"`
   );
   const csv = [headers, ...rows].join('\n');
@@ -760,14 +847,13 @@ function exportCSV(filter) {
   const a = document.createElement('a');
   a.href = url; a.download = `issue-triage-${filter}-${new Date().toISOString().slice(0,10)}.csv`; a.click();
   URL.revokeObjectURL(url);
-  showToast(`Exported ${filtered.length} comics`, 'success');
+  showToast(`Exported ${sorted.length} comics`, 'success');
 }
 
 function updateProgress() {
   const total = allComics.length;
   const done = Object.keys(decisions).length;
-  document.getElementById('progress-fill').style.width = (total > 0 ? done/total*100 : 0) + '%';
-  document.getElementById('progress-label').textContent = `${done} / ${total}`;
+  document.getElementById('progress-label').textContent = `${currentIndex + 1} / ${total}`;
 }
 
 function updateStats() {
@@ -791,11 +877,12 @@ dropZone.addEventListener('drop', e => {
   if (file) { const reader = new FileReader(); reader.onload = ev => parseCSV(ev.target.result); reader.readAsText(file); }
 });
 </script>
+
 <!-- Comics Insanity Promo Footer -->
 <div style="text-align:center; padding: 20px 16px; margin-top: 16px; border-top: 1px solid #252d45; background: #111520;">
   <p style="font-family: 'Rajdhani', sans-serif; font-size: 13px; color: #6b7a99; letter-spacing: 1px;">
     📘 <strong style="color: #c9a84c;">Want a complete bulk decision framework?</strong><br>
-    <a href="https://comicsinsanity.gumroad.com/l/pqztus" target="_blank" 
+    <a href="https://comicsinsanity.gumroad.com/l/pqztus" target="_blank"
        style="color: #c9a84c; text-decoration: none; font-weight: 700; letter-spacing: 1px;">
        TCG SELLER'S BULK DECISION GUIDE — $15
     </a>
