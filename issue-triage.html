@@ -327,14 +327,10 @@
           <span id="card-qty" style="font-size:15px;font-weight:700;color:var(--accent);">1</span>
         </div>
 
-        <div class="price-section">
+        <div class="price-section" style="grid-template-columns: repeat(2, 1fr);">
           <div class="price-box">
             <div class="label">CB Price</div>
             <div class="value" id="price-cb">—</div>
-          </div>
-          <div class="price-box">
-            <div class="label">GoCollect</div>
-            <div class="value na" id="price-gc">—</div>
           </div>
           <div class="price-box">
             <div class="label">Suggested</div>
@@ -347,9 +343,9 @@
             style="flex:1;display:block;text-align:center;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.3);border-radius:8px;padding:9px;color:#3b82f6;font-size:13px;font-weight:700;text-decoration:none;">
             🛒 eBay Sold
           </a>
-          <a id="gocollect-link" href="#" target="_blank"
-            style="flex:1;display:block;text-align:center;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:9px;color:var(--accent);font-size:13px;font-weight:700;text-decoration:none;">
-            📊 GoCollect
+          <a id="ebay-active-link" href="#" target="_blank"
+            style="flex:1;display:block;text-align:center;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:9px;color:#60a5fa;font-size:13px;font-weight:700;text-decoration:none;">
+            🔍 eBay Active
           </a>
         </div>
 
@@ -698,8 +694,7 @@ function updateExternalLinks(comic) {
   const issueNum = cleanIssueNum(comic.itemNum);
   const ebayQuery = encodeURIComponent(`"${title}" #${issueNum} comic`);
   document.getElementById('ebay-sold-link').href = `https://www.ebay.com/sch/i.html?_nkw=${ebayQuery}&LH_Complete=1&LH_Sold=1&_sop=13`;
-  const gcQuery = encodeURIComponent(`${title} ${issueNum}`);
-  document.getElementById('gocollect-link').href = `https://comics.gocollect.com/search?q=${gcQuery}`;
+  document.getElementById('ebay-active-link').href = `https://www.ebay.com/sch/i.html?_nkw=${ebayQuery}&_sop=15`;
 }
 
 function updateConditionPrice() {
