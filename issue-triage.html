@@ -339,14 +339,14 @@
         </div>
 
         <div style="display:flex;gap:8px;margin:0 20px 12px;">
-          <a id="ebay-sold-link" href="#" target="_blank"
-            style="flex:1;display:block;text-align:center;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.3);border-radius:8px;padding:9px;color:#3b82f6;font-size:13px;font-weight:700;text-decoration:none;">
+          <button id="ebay-sold-link" onclick="openEbayLink('sold')"
+            style="flex:1;display:block;text-align:center;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.3);border-radius:8px;padding:9px;color:#3b82f6;font-size:13px;font-weight:700;cursor:pointer;">
             🛒 eBay Sold
-          </a>
-          <a id="ebay-active-link" href="#" target="_blank"
-            style="flex:1;display:block;text-align:center;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:9px;color:#60a5fa;font-size:13px;font-weight:700;text-decoration:none;">
+          </button>
+          <button id="ebay-active-link" onclick="openEbayLink('active')"
+            style="flex:1;display:block;text-align:center;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:9px;color:#60a5fa;font-size:13px;font-weight:700;cursor:pointer;">
             🔍 eBay Active
-          </a>
+          </button>
         </div>
 
         <div class="key-issue-banner" id="key-banner">⭐ KEY ISSUE</div>
@@ -651,8 +651,6 @@ function showComic(idx) {
   const cbPrice = comic.cost > 0 ? comic.cost : null;
   document.getElementById('price-cb').textContent = cbPrice ? `$${cbPrice.toFixed(2)}` : '—';
   document.getElementById('price-cb').className = 'value' + (!cbPrice ? ' na' : '');
-  document.getElementById('price-gc').textContent = '—';
-  document.getElementById('price-gc').className = 'value na';
 
   const isKey = isKnownKey(comic);
   const keyBanner = document.getElementById('key-banner');
@@ -689,12 +687,18 @@ function cleanIssueNum(itemNum) {
   return (itemNum || '').replace(/\/(NS|SC|CS|GO|SI|A|B|C|D)\d*$/i, '').replace(/-\d+$/, '').trim();
 }
 
+let ebayUrls = { sold: '', active: '' };
+
+function openEbayLink(type) {
+  if (ebayUrls[type]) window.open(ebayUrls[type], '_blank');
+}
+
 function updateExternalLinks(comic) {
   const title = cleanTitle(comic.title);
   const issueNum = cleanIssueNum(comic.itemNum);
   const ebayQuery = encodeURIComponent(`"${title}" #${issueNum} comic`);
-  document.getElementById('ebay-sold-link').href = `https://www.ebay.com/sch/i.html?_nkw=${ebayQuery}&LH_Complete=1&LH_Sold=1&_sop=13`;
-  document.getElementById('ebay-active-link').href = `https://www.ebay.com/sch/i.html?_nkw=${ebayQuery}&_sop=15`;
+  ebayUrls.sold = `https://www.ebay.com/sch/i.html?_nkw=${ebayQuery}&LH_Complete=1&LH_Sold=1&_sop=13`;
+  ebayUrls.active = `https://www.ebay.com/sch/i.html?_nkw=${ebayQuery}&_sop=15`;
 }
 
 function updateConditionPrice() {
