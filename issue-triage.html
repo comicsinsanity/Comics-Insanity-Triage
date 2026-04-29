@@ -683,10 +683,22 @@ function isKnownKey(comic) {
   return ['1st app','first app','1st appearance','origin of','death of','key issue'].some(p => desc.includes(p));
 }
 
+function cleanTitle(title) {
+  // Remove trailing ", The" or leading "The " for search purposes
+  return (title || '').replace(/,\s*the\s*$/i, '').replace(/^the\s+/i, '').trim();
+}
+
+function cleanIssueNum(itemNum) {
+  // Strip ComicBase suffixes: /NS, /SC, /CS, /GO, /A, /B, -2, etc.
+  return (itemNum || '').replace(/\/(NS|SC|CS|GO|SI|A|B|C|D)\d*$/i, '').replace(/-\d+$/, '').trim();
+}
+
 function updateExternalLinks(comic) {
-  const ebayQuery = encodeURIComponent(`"${comic.title}" #${comic.itemNum} comic`);
+  const title = cleanTitle(comic.title);
+  const issueNum = cleanIssueNum(comic.itemNum);
+  const ebayQuery = encodeURIComponent(`"${title}" #${issueNum} comic`);
   document.getElementById('ebay-sold-link').href = `https://www.ebay.com/sch/i.html?_nkw=${ebayQuery}&LH_Complete=1&LH_Sold=1&_sop=13`;
-  const gcQuery = encodeURIComponent(`${comic.title} ${comic.itemNum}`);
+  const gcQuery = encodeURIComponent(`${title} ${issueNum}`);
   document.getElementById('gocollect-link').href = `https://gocollect.com/search?q=${gcQuery}&type=comic`;
 }
 
